@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       user = await prisma.user.create({
-        where: { phone },
         data: { phone, isVerified: true },
         include: { profile: true },
       })

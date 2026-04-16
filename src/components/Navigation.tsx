@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
+import { Languages, Sun, Moon, Menu } from 'lucide-react'
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -58,9 +59,11 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold">
-              Spandha
-            </span>
+            <img
+              src="/images/logo.webp"
+              alt="Spandha Logo"
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -85,12 +88,10 @@ export default function Navigation() {
             {/* Language Toggle */}
             <button
               onClick={() => changeLanguage(language === 'en' ? 'si' : 'en')}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-wedding-maroon dark:hover:text-wedding-gold transition-colors"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-wedding-maroon dark:hover:text-wedding-gold transition-colors flex items-center"
               title="Change language"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-              </svg>
+              <Languages className="w-5 h-5" />
               <span className="text-xs ml-1">{language === 'en' ? 'EN' : 'SI'}</span>
             </button>
 
@@ -100,15 +101,7 @@ export default function Navigation() {
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-wedding-maroon dark:hover:text-wedding-gold transition-colors"
               title="Toggle theme"
             >
-              {isDark ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {/* Auth/Profile */}
@@ -157,24 +150,14 @@ export default function Navigation() {
               onClick={toggleTheme}
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-wedding-maroon dark:hover:text-wedding-gold"
             >
-              {isDark ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-wedding-maroon dark:hover:text-wedding-gold"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <Menu className="w-6 h-6" />
             </button>
           </div>
         </div>

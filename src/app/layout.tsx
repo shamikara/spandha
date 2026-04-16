@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { Metadata } from 'next'
 import Navigation from '@/components/Navigation'
 import Galaxy from '@/components/Galaxy'
+import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -57,10 +58,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <div className="min-h-screen bg-wedding-cream dark:bg-wedding-dark transition-colors duration-300 relative">
+        <div className="min-h-screen bg-wedding-cream dark:bg-wedding-dark transition-colors duration-300 relative flex flex-col">
           <Galaxy />
           <Navigation />
-          {children}
+          <main className="flex-1">{children}</main>
+          <Footer />
         </div>
       </body>
     </html>
