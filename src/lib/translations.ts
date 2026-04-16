@@ -1,0 +1,211 @@
+export type Language = 'en' | 'si'
+
+export const translations = {
+  en: {
+    // Navigation
+    nav: {
+      home: 'Home',
+      proposals: 'Browse Proposals',
+      post: 'Post Advert',
+      about: 'About',
+      contact: 'Contact',
+      login: 'Login',
+      logout: 'Logout',
+      profile: 'My Profile',
+    },
+    // Home Page
+    home: {
+      title: 'Find Your Perfect',
+      subtitle: 'Life Partner',
+      description: "Sri Lanka's most trusted matrimonial platform. Connect with verified profiles, find meaningful relationships, and start your journey to marriage.",
+      getStarted: 'Get Started',
+      browseProfiles: 'Browse Profiles',
+      verifiedProfiles: 'Verified Profiles',
+      successStories: 'Success Stories',
+      matchSuccess: 'Match Success',
+    },
+    // Auth
+    auth: {
+      login: 'Login',
+      register: 'Register',
+      phone: 'Phone Number',
+      otp: 'Enter OTP',
+      sendOtp: 'Send OTP',
+      verifyOtp: 'Verify OTP',
+      phonePlaceholder: '+94 XX XXX XXXX',
+      otpPlaceholder: 'Enter 6-digit code',
+      loginSuccess: 'Login successful!',
+      otpSent: 'OTP sent to your phone',
+      invalidOtp: 'Invalid OTP',
+    },
+    // Profile
+    profile: {
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      age: 'Age',
+      gender: 'Gender',
+      location: 'Location',
+      job: 'Job',
+      education: 'Education',
+      height: 'Height',
+      religion: 'Religion',
+      caste: 'Caste',
+      motherTongue: 'Mother Tongue',
+      description: 'About Me',
+      save: 'Save Profile',
+      edit: 'Edit Profile',
+      male: 'Male',
+      female: 'Female',
+    },
+    // Proposals
+    proposals: {
+      title: 'Browse Proposals',
+      noProposals: 'No proposals found',
+      viewProfile: 'View Profile',
+      sendInterest: 'Send Interest',
+      interested: 'Interested',
+      ageLocation: '{age} years • {location}',
+      jobEducation: '{job} • {education}',
+    },
+    // Advert
+    advert: {
+      title: 'Post Matrimonial Advert',
+      advertTitle: 'Advert Title',
+      content: 'Advert Content',
+      postAdvert: 'Post Advert',
+      titlePlaceholder: 'Enter advert title',
+      contentPlaceholder: 'Describe what you are looking for...',
+      posted: 'Advert posted successfully!',
+    },
+    // Common
+    common: {
+      loading: 'Loading...',
+      error: 'Error',
+      success: 'Success',
+      cancel: 'Cancel',
+      save: 'Save',
+      edit: 'Edit',
+      delete: 'Delete',
+      confirm: 'Confirm',
+      back: 'Back',
+      next: 'Next',
+      previous: 'Previous',
+      search: 'Search',
+      filter: 'Filter',
+      clear: 'Clear',
+      select: 'Select',
+      yes: 'Yes',
+      no: 'No',
+    },
+  },
+  si: {
+    // Navigation
+    nav: {
+      home: 'මුල',
+      proposals: 'යෝජනා බලන්න',
+      post: 'දැන්වීම පළ කරන්න',
+      about: 'අප ගැන',
+      contact: 'සම්බන්ධ කරගන්න',
+      login: 'ඇතුළු වන්න',
+      logout: 'ඉවත් වන්න',
+      profile: 'මගේ පැතිකඩ',
+    },
+    // Home Page
+    home: {
+      title: 'ඔබේ සුදුසුම',
+      subtitle: 'ජීවිත හවමත් සොයා ගන්න',
+      description: 'ශ්‍රී ලංකාවේ විශ්වාසදායකම විවාහ වේදිකාව. සත්‍යාපනය කළ පැතිකඩ සමඟ සම්බන්ධ වන්න, අර්ථපූර්ණ සබඳතා සොයා ගන්න, සහ ඔබේ විවාහ ගමන ආරම්භ කරන්න.',
+      getStarted: 'ආරම්භ කරන්න',
+      browseProfiles: 'පැතිකඩ බලන්න',
+      verifiedProfiles: 'සත්‍යාපනය කළ පැතිකඩ',
+      successStories: 'සාර්ථක කතා',
+      matchSuccess: 'ගැලපීම් සාර්ථකත්වය',
+    },
+    // Auth
+    auth: {
+      login: 'ඇතුළු වන්න',
+      register: 'ලියාපදිංචි වන්න',
+      phone: 'දුරකථන අංකය',
+      otp: 'OTP ඇතුළත් කරන්න',
+      sendOtp: 'OTP යවන්න',
+      verifyOtp: 'OTP සත්‍යාපනය කරන්න',
+      phonePlaceholder: '+94 XX XXX XXXX',
+      otpPlaceholder: '6 ඉලක්කම් කේතය ඇතුළත් කරන්න',
+      loginSuccess: 'ඇතුළු වීම සාර්ථකයි!',
+      otpSent: 'OTP ඔබේ දුරකථනයට යවා ඇත',
+      invalidOtp: 'වලංගු නොවන OTP',
+    },
+    // Profile
+    profile: {
+      firstName: 'මුල් නම',
+      lastName: 'වාසගම',
+      age: 'වයස',
+      gender: 'ස්ත්‍රී පුරුෂ භාවය',
+      location: 'ස්ථානය',
+      job: 'රැකියාව',
+      education: 'අධ්‍යාපනය',
+      height: 'උස',
+      religion: 'ආගම',
+      caste: 'කුලය',
+      motherTongue: 'මව් භාෂාව',
+      description: 'මම ගැන',
+      save: 'පැතිකඩ සුරකින්න',
+      edit: 'පැතිකඩ සංස්කරණය කරන්න',
+      male: 'පුරුෂ',
+      female: 'ස්ත්‍රී',
+    },
+    // Proposals
+    proposals: {
+      title: 'යෝජනා බලන්න',
+      noProposals: 'යෝජනා හමු නොවීය',
+      viewProfile: 'පැතිකඩ බලන්න',
+      sendInterest: 'උනන්දුව යවන්න',
+      interested: 'උනන්දුව',
+      ageLocation: '{age} වසර • {location}',
+      jobEducation: '{job} • {education}',
+    },
+    // Advert
+    advert: {
+      title: 'විවාහ දැන්වීම පළ කරන්න',
+      advertTitle: 'දැන්වීමේ මාතෘකාව',
+      content: 'දැන්වීමේ අන්තර්ගතය',
+      postAdvert: 'දැන්වීම පළ කරන්න',
+      titlePlaceholder: 'දැන්වීමේ මාතෘකාව ඇතුළත් කරන්න',
+      contentPlaceholder: 'ඔබ බලාපොරොත්තු වන්නේ කුමක්ද යන්න විස්තර කරන්න...',
+      posted: 'දැන්වීම සාර්ථකව පළ කරන ලදී!',
+    },
+    // Common
+    common: {
+      loading: 'පූරණය වෙමින්...',
+      error: 'දෝෂය',
+      success: 'සාර්ථකයි',
+      cancel: 'අවලංගු කරන්න',
+      save: 'සුරකින්න',
+      edit: 'සංස්කරණය කරන්න',
+      delete: 'මකන්න',
+      confirm: 'තහවුරු කරන්න',
+      back: 'ආපසු',
+      next: 'ඊළඟ',
+      previous: 'පෙර',
+      search: 'සොයන්න',
+      filter: 'පෙරනන්න',
+      clear: 'මකන්න',
+      select: 'තෝරන්න',
+      yes: 'ඔව්',
+      no: 'නැත',
+    },
+  },
+}
+
+export const defaultLanguage: Language = 'si'
+
+export function getTranslation(lang: Language, key: string): string {
+  const keys = key.split('.')
+  let value: any = translations[lang]
+  
+  for (const k of keys) {
+    value = value?.[k]
+  }
+  
+  return value || key
+}
