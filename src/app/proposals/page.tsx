@@ -4,34 +4,10 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
 import SkeletonCard from '@/components/SkeletonCard'
-
-interface Proposal {
-  id: string
-  firstName: string
-  lastName: string
-  age: number
-  gender: string
-  location: string
-  job?: string
-  education?: string
-  description?: string
-  avatar?: string
-  isActive: boolean
-}
-
-interface ProposalsResponse {
-  proposals: Proposal[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-  }
-  error?: string
-}
+import type { ProposalsResponse, Profile } from '@/types'
 
 export default function ProposalsPage() {
-  const [proposals, setProposals] = useState<Proposal[]>([])
+  const [proposals, setProposals] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
@@ -209,7 +185,7 @@ export default function ProposalsPage() {
   )
 }
 
-function ProposalCard({ proposal }: { proposal: Proposal }) {
+function ProposalCard({ proposal }: { proposal: Profile }) {
   const { t } = useTranslation()
   const [interested, setInterested] = useState(false)
   const [loading, setLoading] = useState(false)

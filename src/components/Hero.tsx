@@ -6,9 +6,10 @@ import Image from 'next/image'
 import Galaxy from './Galaxy'
 import { ArrowRight } from 'lucide-react'
 import LanguageSwitcher, { Locale } from './LanguageSwitcher'
+import type { HeroContent } from '@/lib/content-blocks'
 
 export default function Hero() {
-  const [heroContent, setHeroContent] = useState<any>(null)
+  const [heroContent, setHeroContent] = useState<HeroContent | null>(null)
   const [loading, setLoading] = useState(true)
   const [locale, setLocale] = useState<Locale>('EN')
 

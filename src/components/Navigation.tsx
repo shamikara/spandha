@@ -7,11 +7,12 @@ import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
 import { Languages, Sun, Moon, Menu } from 'lucide-react'
+import type { Profile } from '@/types'
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [userProfile, setUserProfile] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<Profile | null>(null)
   
   const pathname = usePathname()
   const { t, language, changeLanguage } = useTranslation()
