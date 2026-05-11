@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import jwt from 'jsonwebtoken'
+import { Gender } from '@prisma/client'
+import { verifyToken } from '@/lib/auth'
 
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -18,19 +19,14 @@ const profileSchema = z.object({
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
 })
 
-// Helper function to verify JWT token
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value
-  
-  if (!token) {
-    return null
-  }
+function toGender(value: z.infer<typeof profileSchema>['gender']): Gender {
+  return value === 'male' ? Gender.MALE : Gender.FEMALE
+}
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    return decoded
-  } catch (error) {
-    return null
+function toProfileData(validatedData: z.infer<typeof profileSchema>) {
+  return {
+    ...validatedData,
+    gender: toGender(validatedData.gender),
   }
 }
 
@@ -104,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     const profile = await prisma.profile.create({
       data: {
-        ...validatedData,
+        ...toProfileData(validatedData),
         userId: user.userId,
       },
       include: {
@@ -155,7 +151,7 @@ export async function PUT(request: NextRequest) {
 
     const profile = await prisma.profile.update({
       where: { userId: user.userId },
-      data: validatedData,
+      data: toProfileData(validatedData),
       include: {
         user: {
           select: {

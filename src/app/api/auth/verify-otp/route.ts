@@ -1,61 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
+import { verifyOtp } from '@/lib/otp'
+import { signToken } from '@/lib/auth'
 
 const verifyOtpSchema = z.object({
   phone: z.string().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number'),
   otp: z.string().regex(/^\d{6}$/, 'Invalid OTP format'),
 })
 
-// Rate limiting store (in production, use Redis)
-const otpStore = new Map<string, { otp: string; expiresAt: number; attempts: number }>()
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { phone, otp } = verifyOtpSchema.parse(body)
 
-    // Get stored OTP
-    const storedData = otpStore.get(phone)
-    
-    if (!storedData) {
+    // Verify OTP using shared store
+    const result = verifyOtp(phone, otp)
+
+    if (!result.valid) {
       return NextResponse.json(
-        { error: 'OTP not found. Please request a new OTP.' },
+        { error: result.error },
         { status: 400 }
       )
     }
-
-    // Check if OTP expired
-    if (Date.now() > storedData.expiresAt) {
-      otpStore.delete(phone)
-      return NextResponse.json(
-        { error: 'OTP expired. Please request a new OTP.' },
-        { status: 400 }
-      )
-    }
-
-    // Check attempts
-    if (storedData.attempts >= 3) {
-      otpStore.delete(phone)
-      return NextResponse.json(
-        { error: 'Too many failed attempts. Please request a new OTP.' },
-        { status: 400 }
-      )
-    }
-
-    // Verify OTP
-    if (storedData.otp !== otp) {
-      storedData.attempts++
-      return NextResponse.json(
-        { error: 'Invalid OTP' },
-        { status: 400 }
-      )
-    }
-
-    // OTP is valid - clean up
-    otpStore.delete(phone)
 
     // Get or create user
     let user = await prisma.user.findUnique({
@@ -76,16 +43,12 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        phone: user.phone, 
-        isVerified: user.isVerified 
-      },
-      process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: '7d' }
-    )
+    // Generate JWT token using shared auth utility
+    const token = signToken({
+      userId: user.id,
+      phone: user.phone,
+      isVerified: user.isVerified,
+    })
 
     // Set HTTP-only cookie
     const response = NextResponse.json({

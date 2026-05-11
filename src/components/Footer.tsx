@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="text-2xl font-serif font-bold">Spandha</h3>
             <p className="text-white/80 text-sm">
-              Sri Lanka's most trusted matrimonial platform. Find your perfect life partner.
+              Sri Lanka&apos;s most trusted matrimonial platform. Find your perfect life partner.
             </p>
           </div>
 

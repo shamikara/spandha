@@ -1,10 +1,59 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import Galaxy from './Galaxy'
+import { ArrowRight } from 'lucide-react'
+import LanguageSwitcher, { Locale } from './LanguageSwitcher'
 
 export default function Hero() {
+  const [heroContent, setHeroContent] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [locale, setLocale] = useState<Locale>('EN')
+
+  useEffect(() => {
+    // Load locale from localStorage
+    const savedLocale = localStorage.getItem('locale') as Locale
+    if (savedLocale && (savedLocale === 'EN' || savedLocale === 'SI')) {
+      setLocale(savedLocale)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchHeroContent()
+  }, [locale])
+
+  useEffect(() => {
+    // Listen for locale changes
+    const handleLocaleChange = (e: CustomEvent) => {
+      setLocale(e.detail)
+    }
+    window.addEventListener('localeChange', handleLocaleChange as EventListener)
+    return () => window.removeEventListener('localeChange', handleLocaleChange as EventListener)
+  }, [])
+
+  const fetchHeroContent = async () => {
+    try {
+      const res = await fetch(`/api/content-blocks?key=hero&locale=${locale}`)
+      if (res.ok) {
+        const data = await res.json()
+        setHeroContent(data.content)
+      }
+    } catch (error) {
+      console.error('Error fetching hero content:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Default values if no dynamic content
+  const content = heroContent || {
+    title: 'Find Your Perfect',
+    subtitle: 'Life Partner',
+    cta: 'Get Started',
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <Galaxy />
@@ -21,25 +70,33 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        {/* Language Switcher */}
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher />
+        </div>
+
         {/* Hero Logo */}
-        <div className="mb-8 animate-fade-in">
-          <img
+        <div className="mb-8 animate-fade-in flex justify-center">
+          <Image
             src="/images/hero-logo.webp"
             alt="Spandha"
-            className="h-24 md:h-32 w-auto mx-auto"
+            width={300}
+            height={128}
+            className="h-24 md:h-32 w-auto"
+            priority
           />
         </div>
 
         <div className="animate-fade-in">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6">
-            Find Your Perfect
+            {content.title}
             <span className="block text-wedding-gold mt-2">
-              Life Partner
+              {content.subtitle}
             </span>
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Sri Lanka's most trusted matrimonial platform. Connect with verified profiles,
+            Sri Lanka&apos;s most trusted matrimonial platform. Connect with verified profiles,
             find meaningful relationships, and start your journey to marriage.
           </p>
 
@@ -48,10 +105,8 @@ export default function Hero() {
               href="/auth"
               className="wedding-button text-lg px-8 py-4 inline-flex items-center justify-center"
             >
-              Get Started
-              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+              {content.cta}
+              <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
 
             <Link

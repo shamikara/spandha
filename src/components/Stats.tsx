@@ -14,7 +14,7 @@ export default function Stats() {
             Trusted by Thousands
           </h2>
           <p className="text-lg text-white/90 max-w-2xl mx-auto">
-            Join Sri Lanka's largest and most trusted matrimonial community
+            Join Sri Lanka&apos;s largest and most trusted matrimonial community
           </p>
         </div>
 

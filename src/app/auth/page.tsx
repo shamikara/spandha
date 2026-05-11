@@ -171,7 +171,7 @@ export default function AuthPage() {
             <p>
               {step === 'phone' ? (
                 <>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <button
                     type="button"
                     onClick={() => setStep('phone')}
@@ -182,7 +182,7 @@ export default function AuthPage() {
                 </>
               ) : (
                 <>
-                  Didn't receive the code?{' '}
+                  Didn&apos;t receive the code?{' '}
                   <button
                     type="button"
                     onClick={handleSendOtp}

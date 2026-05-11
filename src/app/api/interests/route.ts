@@ -1,26 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import jwt from 'jsonwebtoken'
+import { InterestStatus } from '@prisma/client'
+import { verifyToken } from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
 
 const interestSchema = z.object({
   toUserId: z.string().min(1, 'Target user ID is required'),
 })
 
-// Helper function to verify JWT token
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value
-  
-  if (!token) {
-    return null
-  }
+const updateInterestSchema = z.object({
+  interestId: z.string().min(1, 'Interest ID is required'),
+  status: z.enum(['accepted', 'rejected']),
+})
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    return decoded
-  } catch (error) {
-    return null
-  }
+function toInterestStatus(status: z.infer<typeof updateInterestSchema>['status']): InterestStatus {
+  return status === 'accepted' ? InterestStatus.ACCEPTED : InterestStatus.REJECTED
 }
 
 export async function POST(request: NextRequest) {
@@ -80,7 +76,7 @@ export async function POST(request: NextRequest) {
       data: {
         fromUserId: user.userId,
         toUserId: toUserId,
-        status: 'pending',
+        status: InterestStatus.PENDING,
       },
       include: {
         fromUser: {
@@ -231,14 +227,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { interestId, status } = body
-
-    if (!['accepted', 'rejected'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status' },
-        { status: 400 }
-      )
-    }
+    const { interestId, status } = updateInterestSchema.parse(body)
 
     // Find the interest and verify it belongs to the user (as receiver)
     const interest = await prisma.interest.findUnique({
@@ -266,7 +255,7 @@ export async function PUT(request: NextRequest) {
     // Update interest status
     const updatedInterest = await prisma.interest.update({
       where: { id: interestId },
-      data: { status },
+      data: { status: toInterestStatus(status) },
       include: {
         fromUser: {
           include: {
@@ -295,6 +284,13 @@ export async function PUT(request: NextRequest) {
     })
 
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: error.errors },
+        { status: 400 }
+      )
+    }
+
     console.error('Update interest error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

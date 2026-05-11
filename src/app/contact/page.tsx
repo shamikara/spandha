@@ -120,7 +120,7 @@ export default function ContactPage() {
                 How do I create a profile on Spandha?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Simply click on "Get Started" and register with your phone number. You'll receive an OTP for verification, 
+                Simply click on &quot;Get Started&quot; and register with your phone number. You&apos;ll receive an OTP for verification, 
                 then you can create your profile and start browsing proposals.
               </p>
             </div>

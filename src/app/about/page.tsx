@@ -97,7 +97,7 @@ export default function AboutPage() {
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Success Focus</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  We're committed to helping you find lasting happiness.
+                  We&apos;re committed to helping you find lasting happiness.
                 </p>
               </div>
             </div>

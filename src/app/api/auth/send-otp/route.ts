@@ -1,38 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { generateOTP, storeOtp, checkRateLimit } from '@/lib/otp'
 
 const sendOtpSchema = z.object({
   phone: z.string().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number'),
 })
-
-// Rate limiting store (in production, use Redis)
-const otpStore = new Map<string, { otp: string; expiresAt: number; attempts: number }>()
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
-
-function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
-}
-
-function checkRateLimit(phone: string): boolean {
-  const now = Date.now()
-  const windowMs = 15 * 60 * 1000 // 15 minutes
-  const maxRequests = 5
-
-  const current = rateLimitStore.get(phone)
-  
-  if (!current || now > current.resetTime) {
-    rateLimitStore.set(phone, { count: 1, resetTime: now + windowMs })
-    return true
-  }
-
-  if (current.count >= maxRequests) {
-    return false
-  }
-
-  current.count++
-  return true
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,17 +20,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate OTP
+    // Generate and store OTP
     const otp = generateOTP()
-    const expiresAt = Date.now() + 10 * 60 * 1000 // 10 minutes
+    storeOtp(phone, otp)
 
-    // Store OTP (in production, use Redis)
-    otpStore.set(phone, { otp, expiresAt, attempts: 0 })
+    // TODO: Phase 4.1 — Replace with real SMS provider (Twilio / Dialog)
+    console.log(`[DEV] OTP for ${phone}: ${otp}`)
 
-    // Mock SMS sending - in production, use actual SMS service
-    console.log(`Mock OTP for ${phone}: ${otp}`)
-
-    // Create or update user (with fallback for development)
+    // Create or update user
     try {
       await prisma.user.upsert({
         where: { phone },
@@ -65,9 +35,8 @@ export async function POST(request: NextRequest) {
         create: { phone },
       })
     } catch (dbError) {
-      // In development without database, just log and continue
       if (process.env.NODE_ENV === 'development') {
-        console.log('Database not available, continuing with mock data')
+        console.log('[DEV] Database not available, continuing with mock data')
       } else {
         throw dbError
       }
@@ -75,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: 'OTP sent successfully',
-      // For development, return the OTP (remove in production)
+      // Only expose OTP in development
       ...(process.env.NODE_ENV === 'development' && { otp }),
     })
 

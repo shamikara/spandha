@@ -1,28 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
 
 const advertSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(100, 'Title must be less than 100 characters'),
   content: z.string().min(20, 'Content must be at least 20 characters').max(1000, 'Content must be less than 1000 characters'),
+  builderData: z.record(z.string()).optional(),
 })
-
-// Helper function to verify JWT token
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value
-  
-  if (!token) {
-    return null
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -138,7 +125,9 @@ export async function POST(request: NextRequest) {
     // Create advert
     const advert = await prisma.advert.create({
       data: {
-        ...validatedData,
+        title: validatedData.title,
+        content: validatedData.content,
+        builderData: validatedData.builderData,
         userId: user.userId,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       },

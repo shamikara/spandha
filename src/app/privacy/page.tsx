@@ -146,7 +146,7 @@ export default function PrivacyPage() {
 
           <div className="wedding-card p-8 mb-6">
             <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold mb-4">
-              Children's Privacy
+              Children&apos;s Privacy
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
               Our platform is intended for adults seeking marriage partners. We do not knowingly collect 
@@ -161,7 +161,7 @@ export default function PrivacyPage() {
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
               We may update this Privacy Policy from time to time. We will notify you of any changes 
-              by posting the new policy on this page and updating the "Last updated" date.
+              by posting the new policy on this page and updating the &quot;Last updated&quot; date.
             </p>
           </div>
 
