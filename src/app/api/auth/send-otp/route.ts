@@ -43,9 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: 'OTP sent successfully',
-      // Only expose OTP in development
-      ...(process.env.NODE_ENV === 'development' && { otp }),
+      message: 'OTP sent successfully'
     })
 
   } catch (error) {

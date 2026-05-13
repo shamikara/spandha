@@ -104,7 +104,6 @@ export async function GET(
       include: {
         user: {
           select: {
-            phone: true,
             isVerified: true,
             createdAt: true,
           },

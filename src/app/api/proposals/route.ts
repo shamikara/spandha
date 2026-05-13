@@ -138,7 +138,6 @@ export async function GET(request: NextRequest) {
         include: {
           user: {
             select: {
-              phone: true,
               createdAt: true,
             },
           },
