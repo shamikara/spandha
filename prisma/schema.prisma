@@ -9,10 +9,11 @@ datasource db {
 
 model User {
   id          String   @id @default(cuid())
-  phone       String   @unique
+  phone       String?  @unique
   email       String?  @unique
   isVerified  Boolean  @default(false)
   isAdmin     Boolean  @default(false)
+  isPremium   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -39,6 +40,9 @@ model Profile {
   religion     String?
   caste        String?
   motherTongue String?
+  hobbies      String[]
+  drinking     String?
+  smoking      String?
   description  String?
   avatar       String?
   isActive     Boolean  @default(true)

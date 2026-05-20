@@ -5,6 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
 import SkeletonCard from '@/components/SkeletonCard'
 import type { ProposalsResponse, Profile } from '@/types'
+import { motion } from 'framer-motion'
 
 export default function ProposalsPage() {
   const [proposals, setProposals] = useState<Profile[]>([])
@@ -66,41 +67,61 @@ export default function ProposalsPage() {
     setPage(1)
   }
 
+  const inputClasses = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-slate-500"
+
   return (
-    <div className="min-h-screen bg-wedding-cream dark:bg-wedding-dark">
+    <div className="min-h-screen bg-transparent pt-24 pb-12">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold">
-            {t('proposals.title')}
-          </h1>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-semibold tracking-tight text-slate-100"
+        >
+          {t('proposals.title')}
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mt-2 text-slate-400"
+        >
+          Curated connections tailored to your preferences.
+        </motion.p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Filters */}
-        <div className="wedding-card p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            {t('common.filter')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-6 mb-12 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
+        >
+          <div className="flex items-center justify-between mb-6">
+             <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+               {t('common.filter')} Parameters
+             </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
                 {t('profile.gender')}
               </label>
               <select
                 value={filters.gender}
                 onChange={(e) => handleFilterChange('gender', e.target.value)}
-                className="wedding-input w-full"
+                className={inputClasses}
               >
-                <option value="">{t('common.select')}</option>
-                <option value="male">{t('profile.male')}</option>
-                <option value="female">{t('profile.female')}</option>
+                <option value="" className="bg-zinc-900">{t('common.select')}</option>
+                <option value="male" className="bg-zinc-900">{t('profile.male')}</option>
+                <option value="female" className="bg-zinc-900">{t('profile.female')}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
                 {t('profile.location')}
               </label>
               <input
@@ -108,12 +129,12 @@ export default function ProposalsPage() {
                 value={filters.location}
                 onChange={(e) => handleFilterChange('location', e.target.value)}
                 placeholder="e.g., Colombo"
-                className="wedding-input w-full"
+                className={inputClasses}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
                 Min {t('profile.age')}
               </label>
               <input
@@ -123,12 +144,12 @@ export default function ProposalsPage() {
                 placeholder="18"
                 min="18"
                 max="100"
-                className="wedding-input w-full"
+                className={inputClasses}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
                 Max {t('profile.age')}
               </label>
               <input
@@ -138,26 +159,30 @@ export default function ProposalsPage() {
                 placeholder="50"
                 min="18"
                 max="100"
-                className="wedding-input w-full"
+                className={inputClasses}
               />
             </div>
 
             <div className="flex items-end">
               <button
                 onClick={clearFilters}
-                className="wedding-button w-full"
+                className="w-full bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10"
               >
                 {t('common.clear')}
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Error */}
         {error && (
-          <div className="mb-8 p-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm"
+          >
             {error}
-          </div>
+          </motion.div>
         )}
 
         {/* Proposals Grid */}
@@ -168,15 +193,19 @@ export default function ProposalsPage() {
             ))}
           </div>
         ) : proposals.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20 rounded-2xl border border-dashed border-white/10"
+          >
+            <p className="text-slate-400 text-sm">
               {t('proposals.noProposals')}
             </p>
-          </div>
+          </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {proposals.map((proposal) => (
-              <ProposalCard key={proposal.id} proposal={proposal} />
+            {proposals.map((proposal, index) => (
+              <ProposalCard key={proposal.id} proposal={proposal} index={index} />
             ))}
           </div>
         )}
@@ -185,10 +214,13 @@ export default function ProposalsPage() {
   )
 }
 
-function ProposalCard({ proposal }: { proposal: Profile }) {
+function ProposalCard({ proposal, index }: { proposal: Profile, index: number }) {
   const { t } = useTranslation()
   const [interested, setInterested] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // Demo: Set to true if the current logged-in user is premium
+  const isCurrentUserPremium = false
 
   const handleSendInterest = async () => {
     setLoading(true)
@@ -210,37 +242,66 @@ function ProposalCard({ proposal }: { proposal: Profile }) {
   }
 
   return (
-    <div className="wedding-card p-6 hover:scale-105 transition-transform duration-300">
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="w-12 h-12 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold">
-          {proposal.firstName[0]}{proposal.lastName[0]}
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="group relative p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-500 flex flex-col h-full"
+    >
+      <div className="flex items-center space-x-5 mb-6">
+        <div className="relative">
+          <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/30 border border-white/10 flex items-center justify-center text-slate-200 font-semibold tracking-wider text-lg overflow-hidden transition-all duration-500 ${!isCurrentUserPremium ? 'blur-md opacity-60 scale-95' : ''}`}>
+            {proposal.avatar ? (
+              <img src={proposal.avatar} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              `${proposal.firstName[0]}${proposal.lastName[0]}`
+            )}
+          </div>
+          {!isCurrentUserPremium && (
+            <div className="absolute inset-0 flex items-center justify-center">
+               <span className="text-[9px] uppercase font-bold tracking-widest bg-black/60 text-white/90 px-2 py-1 rounded-full backdrop-blur-md border border-white/20 shadow-xl">
+                 Premium
+               </span>
+            </div>
+          )}
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-medium text-slate-100 tracking-tight">
             {proposal.firstName} {proposal.lastName}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {`${proposal.age} years • ${proposal.location}`}
+          <p className="text-sm text-slate-400 mt-0.5">
+            {`${proposal.age} yrs • ${proposal.location}`}
           </p>
         </div>
       </div>
 
-      {proposal.job && proposal.education && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-          {`${proposal.job} • ${proposal.education}`}
-        </p>
+      {(proposal.job || proposal.education) && (
+        <div className="mb-3 flex flex-wrap gap-2">
+           {proposal.job && <span className="px-2.5 py-1 text-xs rounded-md bg-white/5 text-slate-300 border border-white/5">{proposal.job}</span>}
+           {proposal.education && <span className="px-2.5 py-1 text-xs rounded-md bg-white/5 text-slate-300 border border-white/5">{proposal.education}</span>}
+        </div>
+      )}
+
+      {(proposal.hobbies?.length > 0 || proposal.drinking || proposal.smoking) && (
+        <div className="mb-4 flex flex-wrap gap-2">
+           {proposal.hobbies?.slice(0, 2).map((hobby, i) => (
+             <span key={i} className="px-2.5 py-1 text-xs rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{hobby}</span>
+           ))}
+           {proposal.drinking && <span className="px-2.5 py-1 text-xs rounded-md bg-rose-500/10 text-rose-300 border border-rose-500/20">🥂 {proposal.drinking}</span>}
+           {proposal.smoking && <span className="px-2.5 py-1 text-xs rounded-md bg-slate-500/20 text-slate-300 border border-slate-500/20">🚬 {proposal.smoking}</span>}
+        </div>
       )}
 
       {proposal.description && (
-        <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">
+        <p className="text-sm text-slate-400 mb-8 line-clamp-2 leading-relaxed flex-grow">
           {proposal.description}
         </p>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-3 mt-auto">
         <button
           onClick={() => window.location.href = `/proposals/${proposal.id}`}
-          className="flex-1 bg-wedding-maroon hover:bg-wedding-maroon/90 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          className="flex-1 bg-white/5 hover:bg-white/10 text-slate-200 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10"
         >
           {t('proposals.viewProfile')}
         </button>
@@ -248,15 +309,15 @@ function ProposalCard({ proposal }: { proposal: Profile }) {
         <button
           onClick={handleSendInterest}
           disabled={interested || loading}
-          className={`flex-1 font-medium py-2 px-4 rounded-lg transition-colors ${
+          className={`flex-1 text-sm font-medium py-2.5 px-4 rounded-xl transition-all ${
             interested
-              ? 'bg-green-500 text-white'
-              : 'bg-wedding-gold hover:bg-wedding-gold/90 text-wedding-maroon'
+              ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20'
+              : 'bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-500/50'
           } disabled:opacity-50`}
         >
           {loading ? t('common.loading') : interested ? t('proposals.interested') : t('proposals.sendInterest')}
         </button>
       </div>
-    </div>
+    </motion.div>
   )
 }

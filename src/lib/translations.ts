@@ -37,6 +37,12 @@ export const translations = {
       loginSuccess: 'Login successful!',
       otpSent: 'OTP sent to your phone',
       invalidOtp: 'Invalid OTP',
+      verificationTitle: 'Identity Verification',
+      nicDescription: 'To maintain a highly secure and verified community, we require your NIC for identity verification.',
+      uploadFront: 'Upload NIC (Front)',
+      uploadBack: 'Upload NIC (Back)',
+      personalInfo: 'Personal Information',
+      dateOfBirth: 'Date of Birth',
     },
     // Profile
     profile: {
@@ -134,6 +140,12 @@ export const translations = {
       loginSuccess: 'ඇතුළු වීම සාර්ථකයි!',
       otpSent: 'OTP ඔබේ දුරකථනයට යවා ඇත',
       invalidOtp: 'වලංගු නොවන OTP',
+      verificationTitle: 'අනන්‍යතා සත්‍යාපනය',
+      nicDescription: 'ඉතා සුරක්ෂිත සහ සත්‍යාපනය කළ ප්‍රජාවක් පවත්වා ගැනීම සඳහා, අපි ඔබගේ හැඳුනුම්පත සත්‍යාපනය සඳහා භාවිතා කරමු.',
+      uploadFront: 'ජාතික හැඳුනුම්පත (ඉදිරිපස)',
+      uploadBack: 'ජාතික හැඳුනුම්පත (පිටුපස)',
+      personalInfo: 'පුද්ගලික තොරතුරු',
+      dateOfBirth: 'උපන් දිනය',
     },
     // Profile
     profile: {

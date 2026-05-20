@@ -4,7 +4,7 @@ import { Gender, InterestStatus, BlockType, Locale } from '@prisma/client'
 
 export interface User {
   id: string
-  phone: string
+  phone: string | null
   email: string | null
   isVerified: boolean
   isAdmin: boolean
@@ -27,6 +27,9 @@ export interface Profile {
   religion: string | null
   caste: string | null
   motherTongue: string | null
+  hobbies: string[]
+  drinking: string | null
+  smoking: string | null
   description: string | null
   avatar: string | null
   isActive: boolean
