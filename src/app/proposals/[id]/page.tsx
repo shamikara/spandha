@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
@@ -37,11 +37,6 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
   const { t } = useTranslation()
   const { isDark } = useTheme()
 
-  useEffect(() => {
-    checkAuth()
-    fetchProposal()
-  }, [params.id])
-
   const checkAuth = async () => {
     try {
       const response = await fetch('/api/profile')
@@ -51,7 +46,7 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
     }
   }
 
-  const fetchProposal = async () => {
+  const fetchProposal = useCallback(async () => {
     try {
       const response = await fetch(`/api/proposals/${params.id}`)
       
@@ -66,7 +61,12 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    checkAuth()
+    fetchProposal()
+  }, [fetchProposal])
 
   const handleSendInterest = async () => {
     if (!isAuthenticated) {

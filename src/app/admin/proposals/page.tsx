@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { Search, Eye, EyeOff, MapPin, Briefcase, GraduationCap, User as UserIcon } from 'lucide-react'
 
 interface ProposalProfile {
@@ -31,7 +32,7 @@ export default function AdminProposalsPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -46,12 +47,12 @@ export default function AdminProposalsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter, search])
 
   useEffect(() => {
     const debounce = setTimeout(() => fetchProfiles(), 300)
     return () => clearTimeout(debounce)
-  }, [search, filter])
+  }, [fetchProfiles])
 
   const toggleActive = async (profileId: string, currentStatus: boolean) => {
     try {
@@ -167,7 +168,7 @@ export default function AdminProposalsPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/20 overflow-hidden flex-shrink-0">
                           {profile.avatar ? (
-                            <img src={profile.avatar} alt="avatar" className="w-full h-full object-cover" />
+                            <Image src={profile.avatar} alt="avatar" width={40} height={40} className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-sm font-medium text-indigo-300">
                               {profile.firstName[0]}{profile.lastName[0]}

@@ -22,6 +22,20 @@ export default function Hero() {
   }, [])
 
   useEffect(() => {
+    const fetchHeroContent = async () => {
+      try {
+        const res = await fetch(`/api/content-blocks?key=hero&locale=${locale}`)
+        if (res.ok) {
+          const data = await res.json()
+          setHeroContent(data.content)
+        }
+      } catch (error) {
+        console.error('Error fetching hero content:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchHeroContent()
   }, [locale])
 
@@ -33,20 +47,6 @@ export default function Hero() {
     window.addEventListener('localeChange', handleLocaleChange as EventListener)
     return () => window.removeEventListener('localeChange', handleLocaleChange as EventListener)
   }, [])
-
-  const fetchHeroContent = async () => {
-    try {
-      const res = await fetch(`/api/content-blocks?key=hero&locale=${locale}`)
-      if (res.ok) {
-        const data = await res.json()
-        setHeroContent(data.content)
-      }
-    } catch (error) {
-      console.error('Error fetching hero content:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   // Default values if no dynamic content
   const content = heroContent || {

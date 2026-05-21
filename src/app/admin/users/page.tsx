@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { Search, Shield, ShieldAlert, Star, ShieldCheck, User as UserIcon } from 'lucide-react'
 import type { User, Profile } from '@/types'
 
@@ -12,7 +13,7 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -27,14 +28,14 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter, search])
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchUsers()
     }, 300)
     return () => clearTimeout(delayDebounceFn)
-  }, [search, filter])
+  }, [fetchUsers])
 
   const toggleStatus = async (userId: string, field: 'isVerified' | 'isPremium' | 'isAdmin', currentValue: boolean) => {
     try {
@@ -114,7 +115,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 overflow-hidden">
                            {user.profile?.avatar ? (
-                             <img src={user.profile.avatar} alt="avatar" className="w-full h-full object-cover" />
+                             <Image src={user.profile.avatar} alt="avatar" width={40} height={40} className="w-full h-full object-cover" />
                            ) : (
                              <UserIcon className="w-5 h-5 text-indigo-400" />
                            )}

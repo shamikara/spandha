@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { DollarSign, Users, TrendingUp, CreditCard, Crown, User as UserIcon } from 'lucide-react'
 
 interface PremiumUser {
@@ -147,7 +148,7 @@ export default function AdminRevenuePage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 overflow-hidden">
                           {user.profile?.avatar ? (
-                            <img src={user.profile.avatar} alt="avatar" className="w-full h-full object-cover" />
+                            <Image src={user.profile.avatar} alt="avatar" width={40} height={40} className="w-full h-full object-cover" />
                           ) : (
                             <UserIcon className="w-5 h-5 text-rose-400" />
                           )}

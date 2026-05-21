@@ -5,7 +5,7 @@ export default function AdminOverviewPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard Overview</h1>
-        <p className="text-slate-400 mt-1">Welcome back. Here's what's happening on Spandha today.</p>
+        <p className="text-slate-400 mt-1">Welcome back. Here&apos;s what&apos;s happening on Spandha today.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

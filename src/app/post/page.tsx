@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 
@@ -287,11 +287,7 @@ export default function PostAdvertPage() {
   const router = useRouter()
   const { t } = useTranslation()
 
-  useEffect(() => {
-    checkProfileAndFetchAdverts()
-  }, [])
-
-  const checkProfileAndFetchAdverts = async () => {
+  const checkProfileAndFetchAdverts = useCallback(async () => {
     try {
       const profileResponse = await fetch('/api/profile')
 
@@ -320,7 +316,11 @@ export default function PostAdvertPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkProfileAndFetchAdverts()
+  }, [checkProfileAndFetchAdverts])
 
   const openAdvertForm = () => {
     if (showForm) {

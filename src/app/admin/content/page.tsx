@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Edit, Trash2, Power, Settings, Globe, Search, Save, ToggleLeft, ToggleRight } from 'lucide-react'
 import ContentBlockForm from '@/components/admin/ContentBlockForm'
 import LanguageSwitcher, { Locale } from '@/components/LanguageSwitcher'
@@ -68,11 +68,7 @@ function ContentBlocksTab() {
     return () => window.removeEventListener('localeChange', handleLocaleChange as EventListener)
   }, [])
 
-  useEffect(() => {
-    fetchBlocks()
-  }, [currentLocale])
-
-  const fetchBlocks = async () => {
+  const fetchBlocks = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch(`/api/content-blocks?locale=${currentLocale}&includeInactive=true`)
@@ -83,7 +79,11 @@ function ContentBlocksTab() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentLocale])
+
+  useEffect(() => {
+    fetchBlocks()
+  }, [fetchBlocks])
 
   const handleCreate = async (data: any) => {
     try {

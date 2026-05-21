@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
 import SkeletonCard from '@/components/SkeletonCard'
@@ -22,7 +23,7 @@ export default function ProposalsPage() {
   const { t } = useTranslation()
   const { isDark } = useTheme()
 
-  const fetchProposals = async () => {
+  const fetchProposals = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -46,11 +47,11 @@ export default function ProposalsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters, page])
 
   useEffect(() => {
     fetchProposals()
-  }, [page, filters])
+  }, [fetchProposals])
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -252,7 +253,7 @@ function ProposalCard({ proposal, index }: { proposal: Profile, index: number })
         <div className="relative">
           <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/30 border border-white/10 flex items-center justify-center text-slate-200 font-semibold tracking-wider text-lg overflow-hidden transition-all duration-500 ${!isCurrentUserPremium ? 'blur-md opacity-60 scale-95' : ''}`}>
             {proposal.avatar ? (
-              <img src={proposal.avatar} alt="avatar" className="w-full h-full object-cover" />
+              <Image src={proposal.avatar} alt="avatar" width={56} height={56} className="w-full h-full object-cover" />
             ) : (
               `${proposal.firstName[0]}${proposal.lastName[0]}`
             )}
