@@ -5,7 +5,7 @@ A high-performance, SEO-optimized, secure matrimonial web application built with
 ## 🚀 Features
 
 ### Core Features
-- ✅ **Authentication**: Phone and email registration with one OTP sent to both SMS and email
+- ✅ **Authentication**: One-field email or phone login with OTP sent to saved SMS/email contacts
 - ✅ **User Profiles**: Complete profile management system
 - ✅ **Proposal Browsing**: Browse and filter matrimonial proposals
 - ✅ **User Dashboard**: Manage profile, interests, adverts, notifications, and payments
@@ -175,8 +175,8 @@ spandha/
 ## 📝 API Routes
 
 ### Authentication
-- `POST /api/auth/send-otp` - Send one OTP to both SMS and email with `{ phone, email }`
-- `POST /api/auth/verify-otp` - Verify OTP and login with `{ phone, email, otp }`
+- `POST /api/auth/send-otp` - Send OTP with `{ identifier }`
+- `POST /api/auth/verify-otp` - Verify OTP and login with `{ identifier, otp }`
 - `GET /api/dashboard` - User dashboard summary
 - `GET /api/notifications` - User notifications and unread count
 - `PUT /api/notifications` - Mark one or all notifications as read

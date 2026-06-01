@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import Navigation from '@/components/Navigation'
 import Galaxy from '@/components/Galaxy'
 import Footer from '@/components/Footer'
+import { ToastProvider } from '@/components/ToastProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -58,12 +59,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <div className="min-h-screen bg-wedding-cream dark:bg-wedding-dark transition-colors duration-300 relative flex flex-col">
-          <Galaxy />
-          <Navigation />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <ToastProvider>
+          <div className="min-h-screen bg-wedding-cream dark:bg-wedding-dark transition-colors duration-300 relative flex flex-col">
+            <Galaxy />
+            <Navigation />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </ToastProvider>
       </body>
     </html>
   )

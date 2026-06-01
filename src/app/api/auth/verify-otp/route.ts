@@ -5,19 +5,50 @@ import { verifyOtp } from '@/lib/otp'
 import { signToken } from '@/lib/auth'
 
 const verifyOtpSchema = z.object({
-  phone: z.string().trim().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number'),
-  email: z.string().trim().toLowerCase().email('Invalid email address'),
+  identifier: z.string().trim().min(1, 'Email or phone number is required'),
   otp: z.string().regex(/^\d{6}$/, 'Invalid OTP format'),
 })
+
+function parseIdentifier(identifier: string) {
+  const value = identifier.trim()
+  const emailResult = z.string().email().safeParse(value.toLowerCase())
+
+  if (emailResult.success) {
+    return { email: emailResult.data, phone: null }
+  }
+
+  const phoneResult = z.string().regex(/^\+94\d{9}$/).safeParse(value)
+
+  if (phoneResult.success) {
+    return { phone: phoneResult.data, email: null }
+  }
+
+  throw new z.ZodError([
+    {
+      code: z.ZodIssueCode.custom,
+      message: 'Enter a valid email address or Sri Lankan phone number',
+      path: ['identifier'],
+    },
+  ])
+}
+
+function otpKey(identifier: string) {
+  return `login:${identifier}`
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { phone, email, otp } = verifyOtpSchema.parse(body)
-    const otpKey = `${phone}:${email}`
+    const { identifier, otp } = verifyOtpSchema.parse(body)
+    const parsed = parseIdentifier(identifier)
+    const normalizedIdentifier = parsed.email || parsed.phone
+
+    if (!normalizedIdentifier) {
+      return NextResponse.json({ error: 'Email or phone number is required' }, { status: 400 })
+    }
 
     // Verify OTP using shared store
-    const result = verifyOtp(otpKey, otp)
+    const result = verifyOtp(otpKey(normalizedIdentifier), otp)
 
     if (!result.valid) {
       return NextResponse.json(
@@ -26,29 +57,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get or create user, keeping phone and email on the same account.
-    const matchingUsers = await prisma.user.findMany({
-      where: { OR: [{ phone }, { email }] },
+    // Get or create user by the single login identifier.
+    const existingUser = await prisma.user.findFirst({
+      where: parsed.phone ? { phone: parsed.phone } : { email: parsed.email as string },
       include: { profile: true },
     })
 
-    if (matchingUsers.length > 1) {
-      return NextResponse.json(
-        { error: 'Phone number and email are already linked to different accounts.' },
-        { status: 409 }
-      )
-    }
-
     let user
-    if (matchingUsers.length === 0) {
+    if (!existingUser) {
       user = await prisma.user.create({
-        data: { phone, email, isVerified: true },
+        data: parsed.phone
+          ? { phone: parsed.phone, isVerified: true }
+          : { email: parsed.email, isVerified: true },
         include: { profile: true },
       })
     } else {
       user = await prisma.user.update({
-        where: { id: matchingUsers[0].id },
-        data: { phone, email, isVerified: true },
+        where: { id: existingUser.id },
+        data: { isVerified: true },
         include: { profile: true },
       })
     }

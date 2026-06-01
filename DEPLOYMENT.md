@@ -139,9 +139,10 @@ RESEND_FROM_EMAIL="Spandha <noreply@your-domain.com>"
 For local development, leaving `RESEND_API_KEY` unset or set to `your-resend-api-key`
 will log the email OTP to the server console instead of sending an email.
 
-Registration collects both phone and email, generates one OTP, stores it once for that
-phone/email pair, and sends the same code through both SMS and Resend. A successful OTP
-marks the account as verified while keeping both contact fields on the same user.
+Login accepts one identifier: either email or a Sri Lankan phone number. If that identifier
+belongs to an existing user with both phone and email saved, the same OTP is sent through
+both SMS and Resend. If only one contact exists, the OTP is sent through that available
+channel. A successful OTP marks the account as verified.
 
 ### 3. Redis for Session Storage
 

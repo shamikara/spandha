@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, CheckCircle, ShieldCheck } from 'lucide-react'
+import { useToast } from '@/components/ToastProvider'
 
 type Step = 'phone' | 'otp' | 'personal' | 'verification'
 
 export default function AuthPage() {
   const [step, setStep] = useState<Step>('phone')
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [otp, setOtp] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -22,11 +22,18 @@ export default function AuthPage() {
   
   const router = useRouter()
   const { t, language, changeLanguage } = useTranslation()
+  const toast = useToast()
 
   const inputClasses = "w-full bg-zinc-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-slate-600"
   const labelClasses = "block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider"
-  const phoneTarget = phone.trim()
-  const emailTarget = email.trim().toLowerCase()
+  const loginIdentifier = identifier.trim()
+
+  const otpSentMessage = (sentTo: Array<'sms' | 'email'>) => {
+    if (sentTo.includes('sms') && sentTo.includes('email')) return t('auth.otpSentSmsAndEmail')
+    if (sentTo.includes('email')) return t('auth.otpSentEmail')
+    if (sentTo.includes('sms')) return t('auth.otpSentSms')
+    return t('auth.otpSent')
+  }
 
   const sendOtp = async () => {
     setLoading(true)
@@ -37,18 +44,23 @@ export default function AuthPage() {
       const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneTarget, email: emailTarget }),
+        body: JSON.stringify({ identifier: loginIdentifier }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
+        toast.success(otpSentMessage(data.sentTo || []), t('common.success'))
         setStep('otp')
       } else {
-        setError(data.error || 'Failed to send OTP')
+        const message = data.error || 'Failed to send OTP'
+        setError(message)
+        toast.danger(message, t('common.error'))
       }
     } catch (error) {
-      setError('Network error. Please try again.')
+      const message = 'Network error. Please try again.'
+      setError(message)
+      toast.warning(message, t('common.warning'))
     } finally {
       setLoading(false)
     }
@@ -68,19 +80,24 @@ export default function AuthPage() {
       const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneTarget, email: emailTarget, otp }),
+        body: JSON.stringify({ identifier: loginIdentifier, otp }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
+        toast.success(t('auth.loginSuccess'), t('common.success'))
         // Proceed to personal details step (simulating a new user onboarding)
         setStep('personal')
       } else {
-        setError(data.error || 'Invalid OTP')
+        const message = data.error || t('auth.invalidOtp')
+        setError(message)
+        toast.danger(message, t('common.error'))
       }
     } catch (error) {
-      setError('Network error. Please try again.')
+      const message = 'Network error. Please try again.'
+      setError(message)
+      toast.warning(message, t('common.warning'))
     } finally {
       setLoading(false)
     }
@@ -166,37 +183,22 @@ export default function AuthPage() {
               >
                 <div>
                   <label className={labelClasses}>
-                    {t('auth.phone')}
+                    {t('auth.emailOrPhone')}
                   </label>
                   <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder={t('auth.phonePlaceholder')}
+                    type="text"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder={t('auth.emailOrPhonePlaceholder')}
                     className={inputClasses}
                     required
-                    pattern="^\+94\d{9}$"
-                    title="Please enter a valid Sri Lankan phone number (+94 XX XXX XXXX)"
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClasses}>
-                    {t('auth.email')}
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t('auth.emailPlaceholder')}
-                    className={inputClasses}
-                    required
+                    title="Enter your email address or Sri Lankan phone number (+94 XX XXX XXXX)"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading || !phoneTarget || !emailTarget}
+                  disabled={loading || !loginIdentifier}
                   className="w-full bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-500/50 font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-50"
                 >
                   {loading ? t('common.loading') : t('auth.sendOtp')}
@@ -214,7 +216,7 @@ export default function AuthPage() {
                 className="space-y-6"
               >
                 <div className="rounded-xl bg-white/5 border border-white/5 px-4 py-3 text-sm text-slate-400">
-                  {t('auth.otpSentTo')} <span className="text-slate-200">{phoneTarget}</span> {t('common.and')} <span className="text-slate-200">{emailTarget}</span>
+                  {t('auth.otpSentTo')} <span className="text-slate-200">{loginIdentifier}</span>
                 </div>
 
                 <div>
@@ -255,7 +257,7 @@ export default function AuthPage() {
                 </div>
 
                 <div className="text-center text-sm text-slate-500">
-                  {t('auth.notReceivedSms')} {t('auth.checkEmailToo')}{' '}
+                  {t('auth.notReceivedOtp')}{' '}
                   <button
                     type="button"
                     onClick={sendOtp}
