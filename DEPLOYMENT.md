@@ -221,14 +221,29 @@ DATABASE_URL="postgresql://user:pass@host:5432/db?connection_limit=20"
 DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
 ```
 
-### 2. API Security
+### 2. Supabase RLS
+
+If using Supabase Postgres, run `supabase/rls-policies.sql` in the Supabase SQL
+editor after the Prisma tables have been created.
+
+The current app uses Next.js API routes plus Prisma for all authenticated data
+access, so the RLS policy file enables RLS and blocks direct `anon` /
+`authenticated` Supabase client access to application tables by default. This
+keeps browser-exposed Supabase keys from reading or writing user data.
+
+Do not enable public Supabase table access unless you also add row-scoped
+policies that match the app's auth model. Spandha currently uses app JWT cookies
+and CUID user IDs, not Supabase Auth `auth.uid()`, so Supabase Auth policies
+will need an explicit mapping if client-side Supabase reads are added later.
+
+### 3. API Security
 
 - All API routes have input validation
 - Rate limiting implemented
 - HTTP-only cookies for sessions
 - CORS configured for production
 
-### 3. Environment Security
+### 4. Environment Security
 
 - Use Vercel's encrypted environment variables
 - Never commit `.env.local` to Git
