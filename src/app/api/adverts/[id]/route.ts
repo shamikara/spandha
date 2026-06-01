@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import jwt from 'jsonwebtoken'
-
-// Helper function to verify JWT token
-function verifyToken(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value
-  
-  if (!token) {
-    return null
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
+import { verifyToken } from '@/lib/auth'
 
 export async function DELETE(
   request: NextRequest,

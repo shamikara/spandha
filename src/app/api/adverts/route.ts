@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
+import { notifyUser } from '@/lib/services/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -145,10 +146,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // In production, you would:
-    // 1. Send notification to admin for review
-    // 2. Create activity log
-    // 3. Update analytics
+    await notifyUser({
+      userId: user.userId,
+      type: 'ADVERT_CREATED',
+      title: 'Advert posted',
+      message: `Your advert "${advert.title}" has been posted and is visible while active.`,
+      link: '/dashboard/adverts',
+    })
 
     console.log(`New advert created by user ${user.userId}`)
 

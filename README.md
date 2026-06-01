@@ -5,9 +5,11 @@ A high-performance, SEO-optimized, secure matrimonial web application built with
 ## 🚀 Features
 
 ### Core Features
-- ✅ **Authentication**: Phone OTP-based login (mock implementation)
+- ✅ **Authentication**: Phone and email registration with one OTP sent to both SMS and email
 - ✅ **User Profiles**: Complete profile management system
 - ✅ **Proposal Browsing**: Browse and filter matrimonial proposals
+- ✅ **User Dashboard**: Manage profile, interests, adverts, notifications, and payments
+- ✅ **Notifications**: In-app notifications with email details and SMS nudges
 - ✅ **Skeleton Loading**: Beautiful loading states
 - ✅ **Multi-language**: English and Sinhala support
 - ✅ **Dark/Light Theme**: Wedding-themed design system
@@ -26,7 +28,7 @@ A high-performance, SEO-optimized, secure matrimonial web application built with
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS with custom wedding theme
 - **Database**: Prisma ORM + PostgreSQL
-- **Authentication**: JWT with phone OTP
+- **Authentication**: JWT with phone/email registration and shared SMS/email OTP
 - **Validation**: Zod schemas
 - **Deployment**: Optimized for Vercel
 
@@ -118,13 +120,15 @@ spandha/
 
 3. **Set up environment variables**
    ```bash
-   cp .env.local.example .env.local
+   cp .env.example .env.local
    ```
    
-   Configure your database URL and secrets in `.env.local`:
+   Configure your database URL, secrets, and OTP providers in `.env.local`:
    ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/spandha"
    JWT_SECRET="your-jwt-secret"
+   RESEND_API_KEY="your-resend-api-key"
+   RESEND_FROM_EMAIL="Spandha <noreply@your-domain.com>"
    ```
 
 4. **Set up database**
@@ -171,8 +175,11 @@ spandha/
 ## 📝 API Routes
 
 ### Authentication
-- `POST /api/auth/send-otp` - Send OTP to phone
-- `POST /api/auth/verify-otp` - Verify OTP and login
+- `POST /api/auth/send-otp` - Send one OTP to both SMS and email with `{ phone, email }`
+- `POST /api/auth/verify-otp` - Verify OTP and login with `{ phone, email, otp }`
+- `GET /api/dashboard` - User dashboard summary
+- `GET /api/notifications` - User notifications and unread count
+- `PUT /api/notifications` - Mark one or all notifications as read
 
 ### Proposals
 - `GET /api/proposals` - Get paginated proposals with filters
@@ -199,6 +206,8 @@ spandha/
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - JWT signing secret
 - `NEXTAUTH_URL` - Application URL
+- `RESEND_API_KEY` - Resend API key for email OTP
+- `RESEND_FROM_EMAIL` - Verified Resend sender address
 
 ## 🧪 Testing
 

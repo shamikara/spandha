@@ -5,66 +5,46 @@ import { generateOTP, storeOtp, checkRateLimit } from '@/lib/otp'
 import { smsService, emailService } from '@/lib/services/notification'
 
 const sendOtpSchema = z.object({
-  phone: z.string().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number').optional(),
-  email: z.string().email('Invalid email address').optional(),
-}).refine(data => data.phone || data.email, {
-  message: "Either phone or email must be provided",
+  phone: z.string().trim().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number'),
+  email: z.string().trim().toLowerCase().email('Invalid email address'),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { phone, email } = sendOtpSchema.parse(body)
-    
-    const identifier = phone || email
-    if (!identifier) {
-      return NextResponse.json({ error: 'Identifier required' }, { status: 400 })
-    }
+    const otpKey = `${phone}:${email}`
 
     // Rate limiting
-    if (!checkRateLimit(identifier)) {
+    if (!checkRateLimit(phone)) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
       )
     }
 
-    // Generate and store OTP
-    const otp = generateOTP()
-    storeOtp(identifier, otp)
-
-    // Send OTP via SMS or Email
-    let sent = false
-    if (phone) {
-      sent = await smsService.sendSMS(phone, `Your Spandha verification code is: ${otp}`)
-    } else if (email) {
-      sent = await emailService.sendEmail(
-        email, 
-        'Your Spandha Login Code', 
-        `<h2>Your verification code is: <strong>${otp}</strong></h2><p>This code will expire in 10 minutes.</p>`
-      )
-    }
-
-    if (!sent) {
-       return NextResponse.json(
-        { error: 'Failed to send OTP. Please try again.' },
-        { status: 500 }
-      )
-    }
-
-    // Create or update user
+    // Create or update user before sending the OTP so one account owns both contacts.
     try {
-      if (phone) {
-        await prisma.user.upsert({
-          where: { phone },
-          update: {},
-          create: { phone },
+      const matchingUsers = await prisma.user.findMany({
+        where: { OR: [{ phone }, { email }] },
+        select: { id: true },
+      })
+
+      if (matchingUsers.length > 1) {
+        return NextResponse.json(
+          { error: 'Phone number and email are already linked to different accounts.' },
+          { status: 409 }
+        )
+      }
+
+      if (matchingUsers.length === 1) {
+        await prisma.user.update({
+          where: { id: matchingUsers[0].id },
+          data: { phone, email },
         })
-      } else if (email) {
-        await prisma.user.upsert({
-          where: { email },
-          update: {},
-          create: { email },
+      } else {
+        await prisma.user.create({
+          data: { phone, email },
         })
       }
     } catch (dbError) {
@@ -73,6 +53,27 @@ export async function POST(request: NextRequest) {
       } else {
         throw dbError
       }
+    }
+
+    // Generate and store OTP
+    const otp = generateOTP()
+    storeOtp(otpKey, otp)
+
+    // Send the same OTP to both SMS and email. The user can verify with either copy.
+    const [smsSent, emailSent] = await Promise.all([
+      smsService.sendSMS(phone, `Your Spandha verification code is: ${otp}`),
+      emailService.sendEmail(
+        email,
+        'Your Spandha Login Code',
+        `<h2>Your verification code is: <strong>${otp}</strong></h2><p>This code will expire in 10 minutes.</p>`
+      ),
+    ])
+
+    if (!smsSent && !emailSent) {
+       return NextResponse.json(
+        { error: 'Failed to send OTP. Please try again.' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({

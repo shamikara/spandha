@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
         user: {
           select: {
             phone: true,
+            email: true,
             isVerified: true,
             createdAt: true,
           },
@@ -107,6 +108,7 @@ export async function POST(request: NextRequest) {
         user: {
           select: {
             phone: true,
+            email: true,
             isVerified: true,
             createdAt: true,
           },
@@ -156,6 +158,7 @@ export async function PUT(request: NextRequest) {
         user: {
           select: {
             phone: true,
+            email: true,
             isVerified: true,
             createdAt: true,
           },

@@ -11,6 +11,7 @@ type Step = 'phone' | 'otp' | 'personal' | 'verification'
 export default function AuthPage() {
   const [step, setStep] = useState<Step>('phone')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -24,17 +25,19 @@ export default function AuthPage() {
 
   const inputClasses = "w-full bg-zinc-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-slate-600"
   const labelClasses = "block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider"
+  const phoneTarget = phone.trim()
+  const emailTarget = email.trim().toLowerCase()
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const sendOtp = async () => {
     setLoading(true)
     setError('')
+    setOtp('')
 
     try {
       const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone: phoneTarget, email: emailTarget }),
       })
 
       const data = await response.json()
@@ -51,6 +54,11 @@ export default function AuthPage() {
     }
   }
 
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await sendOtp()
+  }
+
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -60,7 +68,7 @@ export default function AuthPage() {
       const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp }),
+        body: JSON.stringify({ phone: phoneTarget, email: emailTarget, otp }),
       })
 
       const data = await response.json()
@@ -172,9 +180,23 @@ export default function AuthPage() {
                   />
                 </div>
 
+                <div>
+                  <label className={labelClasses}>
+                    {t('auth.email')}
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('auth.emailPlaceholder')}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+
                 <button
                   type="submit"
-                  disabled={loading || !phone}
+                  disabled={loading || !phoneTarget || !emailTarget}
                   className="w-full bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-500/50 font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-50"
                 >
                   {loading ? t('common.loading') : t('auth.sendOtp')}
@@ -191,6 +213,10 @@ export default function AuthPage() {
                 onSubmit={handleVerifyOtp} 
                 className="space-y-6"
               >
+                <div className="rounded-xl bg-white/5 border border-white/5 px-4 py-3 text-sm text-slate-400">
+                  {t('auth.otpSentTo')} <span className="text-slate-200">{phoneTarget}</span> {t('common.and')} <span className="text-slate-200">{emailTarget}</span>
+                </div>
+
                 <div>
                   <label className={labelClasses}>
                     {t('auth.otp')}
@@ -210,7 +236,10 @@ export default function AuthPage() {
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setStep('phone')}
+                    onClick={() => {
+                      setOtp('')
+                      setStep('phone')
+                    }}
                     className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium py-3 px-4 rounded-xl transition-all border border-white/5"
                   >
                     {t('common.back')}
@@ -222,6 +251,18 @@ export default function AuthPage() {
                     className="flex-[2] bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.2)] border border-indigo-500/50 font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-50"
                   >
                     {loading ? t('common.loading') : t('auth.verifyOtp')}
+                  </button>
+                </div>
+
+                <div className="text-center text-sm text-slate-500">
+                  {t('auth.notReceivedSms')} {t('auth.checkEmailToo')}{' '}
+                  <button
+                    type="button"
+                    onClick={sendOtp}
+                    disabled={loading}
+                    className="font-medium text-indigo-300 hover:text-indigo-200 disabled:opacity-50"
+                  >
+                    {t('auth.resendCode')}
                   </button>
                 </div>
               </motion.form>

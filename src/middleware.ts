@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Routes that require authentication
-const protectedRoutes = ['/profile', '/post', '/admin']
+const protectedRoutes = ['/profile', '/post', '/dashboard', '/admin']
 
 // Routes that are only accessible when NOT authenticated
 const authRoutes = ['/auth']
@@ -26,8 +26,8 @@ export function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
   if (isAuthRoute && token) {
-    // Redirect to profile or home if already authenticated
-    const profileUrl = new URL('/profile', request.url)
+    // Redirect to dashboard if already authenticated
+    const profileUrl = new URL('/dashboard', request.url)
     return NextResponse.redirect(profileUrl)
   }
 

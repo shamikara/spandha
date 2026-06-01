@@ -6,13 +6,14 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
-import { Languages, Sun, Moon, Menu } from 'lucide-react'
+import { Bell, Languages, Sun, Moon, Menu } from 'lucide-react'
 import type { Profile } from '@/types'
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userProfile, setUserProfile] = useState<Profile | null>(null)
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
   
   const pathname = usePathname()
   const { t, language, changeLanguage } = useTranslation()
@@ -30,6 +31,11 @@ export default function Navigation() {
       if (response.ok) {
         const data = await response.json()
         setUserProfile(data.profile)
+        const notificationsResponse = await fetch('/api/notifications?limit=1')
+        if (notificationsResponse.ok) {
+          const notificationsData = await notificationsResponse.json()
+          setUnreadNotifications(notificationsData.unreadCount || 0)
+        }
       }
     } catch (error) {
       setIsAuthenticated(false)
@@ -51,6 +57,7 @@ export default function Navigation() {
     { href: '/', label: t('nav.home'), active: pathname === '/' },
     { href: '/proposals', label: t('nav.proposals'), active: pathname === '/proposals' || pathname.startsWith('/proposals/') },
     { href: '/post', label: t('nav.post'), active: pathname === '/post' },
+    { href: '/dashboard', label: 'Dashboard', active: pathname === '/dashboard' || pathname.startsWith('/dashboard/') },
     { href: '/about', label: t('nav.about'), active: pathname === '/about' },
     { href: '/contact', label: t('nav.contact'), active: pathname === '/contact' },
   ]
@@ -113,7 +120,7 @@ export default function Navigation() {
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
                 <Link
-                  href="/profile"
+                  href="/dashboard"
                   className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-wedding-maroon dark:hover:text-wedding-gold transition-colors"
                 >
                   <div className="w-8 h-8 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-xs">
@@ -122,6 +129,18 @@ export default function Navigation() {
                   <span className="hidden lg:block">
                     {userProfile?.firstName} {userProfile?.lastName}
                   </span>
+                </Link>
+                <Link
+                  href="/dashboard/notifications"
+                  className="relative p-2 text-gray-600 transition-colors hover:text-wedding-maroon dark:text-gray-400 dark:hover:text-wedding-gold"
+                  title="Notifications"
+                >
+                  <Bell className="h-5 w-5" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                      {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    </span>
+                  )}
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -191,7 +210,7 @@ export default function Navigation() {
               {isAuthenticated ? (
                 <div className="space-y-3">
                   <Link
-                    href="/profile"
+                    href="/dashboard"
                     className="flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-wedding-maroon dark:hover:text-wedding-gold hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -199,6 +218,18 @@ export default function Navigation() {
                       {userProfile?.firstName?.[0]}{userProfile?.lastName?.[0]}
                     </div>
                     <span>{userProfile?.firstName} {userProfile?.lastName}</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/notifications"
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-wedding-maroon dark:hover:text-wedding-gold hover:bg-gray-50 dark:hover:bg-gray-800"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <span>Notifications</span>
+                    {unreadNotifications > 0 && (
+                      <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
+                        {unreadNotifications}
+                      </span>
+                    )}
                   </Link>
                   <button
                     onClick={() => {

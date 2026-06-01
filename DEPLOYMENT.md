@@ -54,8 +54,16 @@ JWT_SECRET="your-jwt-secret-key-at-least-32-characters"
 RATE_LIMIT_MAX_REQUESTS=100
 RATE_LIMIT_WINDOW_MS=900000
 
-# Phone OTP (Mock for development, replace with real service)
-OTP_SECRET="your-otp-secret"
+# OTP delivery
+OTP_PROVIDER="notify"
+NOTIFY_USER_ID="your-notify-user-id"
+NOTIFY_API_KEY="your-notify-api-key"
+NOTIFY_SENDER_ID="your-notify-sender-id"
+
+# Email OTP via Resend
+EMAIL_PROVIDER="resend"
+RESEND_API_KEY="your-resend-api-key"
+RESEND_FROM_EMAIL="Spandha <noreply@your-domain.com>"
 
 # Production
 NODE_ENV="production"
@@ -78,7 +86,13 @@ NEXTAUTH_SECRET
 JWT_SECRET
 RATE_LIMIT_MAX_REQUESTS
 RATE_LIMIT_WINDOW_MS
-OTP_SECRET
+OTP_PROVIDER
+NOTIFY_USER_ID
+NOTIFY_API_KEY
+NOTIFY_SENDER_ID
+EMAIL_PROVIDER
+RESEND_API_KEY
+RESEND_FROM_EMAIL
 NODE_ENV
 ```
 
@@ -101,54 +115,33 @@ Vercel automatically provides SSL certificates for all deployments.
 
 ### 1. SMS Service for OTP
 
-Replace the mock OTP system with a real SMS service:
+SMS OTP is wired through Notify.lk in `src/lib/services/notification.ts`.
+Set these environment variables in production:
 
-```typescript
-// Example with Twilio
-import twilio from 'twilio';
-
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
-async function sendOTP(phone: string, otp: string) {
-  await client.messages.create({
-    body: `Your Spandha OTP is: ${otp}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phone,
-  });
-}
-```
-
-Add to environment variables:
 ```env
-TWILIO_ACCOUNT_SID
-TWILIO_AUTH_TOKEN
-TWILIO_PHONE_NUMBER
+OTP_PROVIDER="notify"
+NOTIFY_USER_ID="your-notify-user-id"
+NOTIFY_API_KEY="your-notify-api-key"
+NOTIFY_SENDER_ID="your-notify-sender-id"
 ```
 
-### 2. Email Service
+### 2. Email OTP with Resend
 
-Configure email notifications:
+Email OTP is wired through Resend in `src/lib/services/notification.ts`.
+Create a Resend API key, verify your sending domain, then set:
 
-```typescript
-// Example with SendGrid
-import sendgrid from '@sendgrid/mail';
-
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
-
-async function sendEmail(to: string, subject: string, content: string) {
-  await sendgrid.send({
-    to,
-    from: 'noreply@spandha.lk',
-    subject,
-    html: content,
-  });
-}
-```
-
-Add to environment variables:
 ```env
-SENDGRID_API_KEY
+EMAIL_PROVIDER="resend"
+RESEND_API_KEY="your-resend-api-key"
+RESEND_FROM_EMAIL="Spandha <noreply@your-domain.com>"
 ```
+
+For local development, leaving `RESEND_API_KEY` unset or set to `your-resend-api-key`
+will log the email OTP to the server console instead of sending an email.
+
+Registration collects both phone and email, generates one OTP, stores it once for that
+phone/email pair, and sends the same code through both SMS and Resend. A successful OTP
+marks the account as verified while keeping both contact fields on the same user.
 
 ### 3. Redis for Session Storage
 

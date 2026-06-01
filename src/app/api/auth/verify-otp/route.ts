@@ -5,25 +5,19 @@ import { verifyOtp } from '@/lib/otp'
 import { signToken } from '@/lib/auth'
 
 const verifyOtpSchema = z.object({
-  phone: z.string().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number').optional(),
-  email: z.string().email('Invalid email address').optional(),
+  phone: z.string().trim().regex(/^\+94\d{9}$/, 'Invalid Sri Lankan phone number'),
+  email: z.string().trim().toLowerCase().email('Invalid email address'),
   otp: z.string().regex(/^\d{6}$/, 'Invalid OTP format'),
-}).refine(data => data.phone || data.email, {
-  message: "Either phone or email must be provided",
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { phone, email, otp } = verifyOtpSchema.parse(body)
-    
-    const identifier = phone || email
-    if (!identifier) {
-      return NextResponse.json({ error: 'Identifier required' }, { status: 400 })
-    }
+    const otpKey = `${phone}:${email}`
 
     // Verify OTP using shared store
-    const result = verifyOtp(identifier, otp)
+    const result = verifyOtp(otpKey, otp)
 
     if (!result.valid) {
       return NextResponse.json(
@@ -32,21 +26,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get or create user
-    let user = await prisma.user.findUnique({
-      where: phone ? { phone } : { email: email as string },
+    // Get or create user, keeping phone and email on the same account.
+    const matchingUsers = await prisma.user.findMany({
+      where: { OR: [{ phone }, { email }] },
       include: { profile: true },
     })
 
-    if (!user) {
+    if (matchingUsers.length > 1) {
+      return NextResponse.json(
+        { error: 'Phone number and email are already linked to different accounts.' },
+        { status: 409 }
+      )
+    }
+
+    let user
+    if (matchingUsers.length === 0) {
       user = await prisma.user.create({
-        data: phone ? { phone, isVerified: true } : { email, isVerified: true },
+        data: { phone, email, isVerified: true },
         include: { profile: true },
       })
     } else {
       user = await prisma.user.update({
-        where: phone ? { phone } : { email: email as string },
-        data: { isVerified: true },
+        where: { id: matchingUsers[0].id },
+        data: { phone, email, isVerified: true },
         include: { profile: true },
       })
     }

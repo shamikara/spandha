@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { InterestStatus } from '@prisma/client'
 import { verifyToken } from '@/lib/auth'
+import { notifyUser } from '@/lib/services/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,11 +103,17 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // In production, you would:
-    // 1. Send notification to the target user
-    // 2. Send email notification
-    // 3. Create activity log
-    // 4. Update analytics
+    const senderName = interest.fromUser.profile
+      ? `${interest.fromUser.profile.firstName} ${interest.fromUser.profile.lastName}`
+      : 'Someone'
+
+    await notifyUser({
+      userId: toUserId,
+      type: 'INTEREST_RECEIVED',
+      title: 'New interest received',
+      message: `${senderName} is interested in your profile.`,
+      link: '/dashboard/interests',
+    })
 
     console.log(`New interest sent from ${user.userId} to ${toUserId}`)
 
@@ -270,11 +277,17 @@ export async function PUT(request: NextRequest) {
       },
     })
 
-    // In production, you would:
-    // 1. Send notification to the sender about the status change
-    // 2. Send email notification
-    // 3. Create activity log
-    // 4. If accepted, enable messaging between users
+    const receiverName = updatedInterest.toUser.profile
+      ? `${updatedInterest.toUser.profile.firstName} ${updatedInterest.toUser.profile.lastName}`
+      : 'A member'
+
+    await notifyUser({
+      userId: updatedInterest.fromUserId,
+      type: status === 'accepted' ? 'INTEREST_ACCEPTED' : 'INTEREST_REJECTED',
+      title: status === 'accepted' ? 'Interest accepted' : 'Interest declined',
+      message: `${receiverName} ${status === 'accepted' ? 'accepted' : 'declined'} your interest.`,
+      link: '/dashboard/interests',
+    })
 
     console.log(`Interest ${interestId} updated to ${status} by user ${user.userId}`)
 

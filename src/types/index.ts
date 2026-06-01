@@ -61,6 +61,17 @@ export interface Advert {
   user?: { profile: { firstName: string, lastName: string } | null }
 }
 
+export interface Notification {
+  id: string
+  userId: string
+  type: string
+  title: string
+  message: string
+  link: string | null
+  isRead: boolean
+  createdAt: Date
+}
+
 export interface ContentBlock {
   id: string
   key: string
