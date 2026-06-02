@@ -82,11 +82,24 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = verifyToken(request)
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // Verification gating: check if user is verified
+    const currentUser = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { isVerified: true, isPremium: true },
+    })
+
+    if (!currentUser || !currentUser.isVerified) {
+      return NextResponse.json(
+        { error: 'You must verify your NIC before posting adverts. Please upload your NIC documents and wait for admin verification.' },
+        { status: 403 }
       )
     }
 
@@ -105,7 +118,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user has too many active adverts
+    // Check posting limits based on user tier
     const activeAdvertsCount = await prisma.advert.count({
       where: {
         userId: user.userId,
@@ -116,11 +129,44 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    if (activeAdvertsCount >= 3) {
-      return NextResponse.json(
-        { error: 'You can have maximum 3 active adverts at a time' },
-        { status: 400 }
-      )
+    if (currentUser.isPremium) {
+      // Premium users: up to 5 active adverts
+      if (activeAdvertsCount >= 5) {
+        return NextResponse.json(
+          { error: 'Premium users can have maximum 5 active adverts at a time' },
+          { status: 400 }
+        )
+      }
+    } else {
+      // Free users: 1 advert per 30 days
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      const recentAdvert = await prisma.advert.findFirst({
+        where: {
+          userId: user.userId,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      if (recentAdvert) {
+        const nextAvailableDate = new Date(recentAdvert.createdAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+        return NextResponse.json(
+          {
+            error: 'You can post one advert per month. Your next post will be available on ' + nextAvailableDate.toLocaleDateString(),
+          },
+          { status: 400 }
+        )
+      }
+
+      // Also check if they already have 1 active advert
+      if (activeAdvertsCount >= 1) {
+        return NextResponse.json(
+          { error: 'Free users can have maximum 1 active advert at a time' },
+          { status: 400 }
+        )
+      }
     }
 
     // Create advert

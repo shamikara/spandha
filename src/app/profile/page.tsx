@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
+import { Camera, ShieldCheck, Upload, CheckCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { useToast } from '@/components/ToastProvider'
 
 interface Profile {
   id: string
@@ -19,6 +22,9 @@ interface Profile {
   caste?: string
   motherTongue?: string
   description?: string
+  avatar?: string | null
+  nicFront?: string | null
+  nicBack?: string | null
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -31,10 +37,14 @@ export default function ProfilePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isEditing, setIsEditing] = useState(false)
-  
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [nicFrontFile, setNicFrontFile] = useState<File | null>(null)
+  const [nicBackFile, setNicBackFile] = useState<File | null>(null)
+
   const router = useRouter()
   const { t } = useTranslation()
   const { isDark } = useTheme()
+  const toast = useToast()
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -49,7 +59,32 @@ export default function ProfilePage() {
     caste: '',
     motherTongue: '',
     description: '',
+    avatar: '',
+    nicFront: '',
+    nicBack: '',
   })
+
+  const validateFileSize = (file: File): boolean => {
+    const maxSize = 500 * 1024 // 500KB
+    return file.size <= maxSize
+  }
+
+  const uploadToSupabase = async (file: File, folder: string): Promise<string> => {
+    const fileName = `${folder}-${Date.now()}-${file.name}`
+    const { data, error } = await supabase.storage
+      .from(folder)
+      .upload(fileName, file)
+
+    if (error) {
+      throw new Error(`Failed to upload ${folder} image`)
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from(folder)
+      .getPublicUrl(fileName)
+
+    return publicUrl
+  }
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -76,6 +111,9 @@ export default function ProfilePage() {
           caste: data.profile.caste || '',
           motherTongue: data.profile.motherTongue || '',
           description: data.profile.description || '',
+          avatar: data.profile.avatar || '',
+          nicFront: data.profile.nicFront || '',
+          nicBack: data.profile.nicBack || '',
         })
       } else {
         const data = await response.json()
@@ -106,6 +144,41 @@ export default function ProfilePage() {
     setSuccess('')
 
     try {
+      // Handle file uploads
+      let avatarUrl = formData.avatar
+      let nicFrontUrl = formData.nicFront
+      let nicBackUrl = formData.nicBack
+
+      if (avatarFile) {
+        if (!validateFileSize(avatarFile)) {
+          setError('Avatar image must be less than 500KB')
+          toast.danger('Avatar image must be less than 500KB', 'Error')
+          setSaving(false)
+          return
+        }
+        avatarUrl = await uploadToSupabase(avatarFile, 'avatars')
+      }
+
+      if (nicFrontFile) {
+        if (!validateFileSize(nicFrontFile)) {
+          setError('NIC front image must be less than 500KB')
+          toast.danger('NIC front image must be less than 500KB', 'Error')
+          setSaving(false)
+          return
+        }
+        nicFrontUrl = await uploadToSupabase(nicFrontFile, 'nic-documents')
+      }
+
+      if (nicBackFile) {
+        if (!validateFileSize(nicBackFile)) {
+          setError('NIC back image must be less than 500KB')
+          toast.danger('NIC back image must be less than 500KB', 'Error')
+          setSaving(false)
+          return
+        }
+        nicBackUrl = await uploadToSupabase(nicBackFile, 'nic-documents')
+      }
+
       const method = profile ? 'PUT' : 'POST'
       const response = await fetch('/api/profile', {
         method,
@@ -113,6 +186,9 @@ export default function ProfilePage() {
         body: JSON.stringify({
           ...formData,
           age: parseInt(formData.age),
+          avatar: avatarUrl,
+          nicFront: nicFrontUrl,
+          nicBack: nicBackUrl,
         }),
       })
 
@@ -122,15 +198,22 @@ export default function ProfilePage() {
         setSuccess(data.message)
         setProfile(data.profile)
         setIsEditing(false)
+        setAvatarFile(null)
+        setNicFrontFile(null)
+        setNicBackFile(null)
+        toast.success('Profile updated successfully', 'Success')
         if (!profile) {
           // New profile created
           setSuccess('Profile created successfully!')
         }
       } else {
         setError(data.error || 'Failed to save profile')
+        toast.danger(data.error || 'Failed to save profile', 'Error')
       }
     } catch (error) {
-      setError('Network error. Please try again.')
+      const message = error instanceof Error ? error.message : 'Network error. Please try again.'
+      setError(message)
+      toast.danger(message, 'Error')
     } finally {
       setSaving(false)
     }
@@ -196,15 +279,58 @@ export default function ProfilePage() {
             // View profile
             <div className="space-y-6">
               <div className="text-center mb-8">
-                <div className="w-20 h-20 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-2xl mx-auto mb-4">
-                  {profile.firstName[0]}{profile.lastName[0]}
-                </div>
+                {profile.avatar ? (
+                  <img
+                    src={profile.avatar}
+                    alt="Avatar"
+                    className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-4 border-wedding-gold"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-3xl mx-auto mb-4">
+                    {profile.firstName[0]}{profile.lastName[0]}
+                  </div>
+                )}
                 <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold">
                   {profile.firstName} {profile.lastName}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400">
                   {profile.age} years old, {profile.location}
                 </p>
+              </div>
+
+              {/* Verification Card */}
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <ShieldCheck className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  <h3 className="font-semibold text-indigo-900 dark:text-indigo-100">Verification Status</h3>
+                </div>
+                {profile.nicFront && profile.nicBack ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="text-sm">NIC documents uploaded. Awaiting admin verification.</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">NIC Front</p>
+                        <img src={profile.nicFront} alt="NIC Front" className="w-full h-32 object-cover rounded" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">NIC Back</p>
+                        <img src={profile.nicBack} alt="NIC Back" className="w-full h-32 object-cover rounded" />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mb-2">Upload your NIC documents to unlock all features:</p>
+                    <ul className="list-disc list-inside space-y-1 text-xs">
+                      <li>Send interests to other profiles</li>
+                      <li>Post adverts</li>
+                      <li>View full profile details</li>
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -254,6 +380,141 @@ export default function ProfilePage() {
                   Update your profile information
                 </p>
               </div>
+
+              {/* Avatar Upload */}
+              <div className="flex flex-col items-center mb-6">
+                <div className="relative">
+                  {formData.avatar || avatarFile ? (
+                    <img
+                      src={avatarFile ? URL.createObjectURL(avatarFile) : formData.avatar}
+                      alt="Avatar"
+                      className="w-24 h-24 rounded-full object-cover border-4 border-wedding-gold"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-3xl border-4 border-wedding-gold">
+                      {formData.firstName[0]}{formData.lastName[0]}
+                    </div>
+                  )}
+                  <label className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-2 cursor-pointer shadow-lg">
+                    <Camera className="w-4 h-4" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          if (!validateFileSize(file)) {
+                            setError('Avatar must be less than 500KB')
+                            toast.danger('Avatar must be less than 500KB', 'Error')
+                            return
+                          }
+                          setAvatarFile(file)
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Max 500KB</p>
+              </div>
+
+              {/* NIC Upload Section */}
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <ShieldCheck className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  <h3 className="font-semibold text-indigo-900 dark:text-indigo-100">NIC Verification</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">NIC Front</label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            if (!validateFileSize(file)) {
+                              setError('NIC front must be less than 500KB')
+                              toast.danger('NIC front must be less than 500KB', 'Error')
+                              return
+                            }
+                            setNicFrontFile(file)
+                          }
+                        }}
+                        className="hidden"
+                        id="nicFront"
+                      />
+                      <label
+                        htmlFor="nicFront"
+                        className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors"
+                      >
+                        {nicFrontFile ? (
+                          <>
+                            <CheckCircle className="w-6 h-6 text-green-500 mb-2" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">{nicFrontFile.name}</span>
+                          </>
+                        ) : formData.nicFront ? (
+                          <>
+                            <CheckCircle className="w-6 h-6 text-green-500 mb-2" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Uploaded</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-6 h-6 text-gray-400 mb-2" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Upload</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">NIC Back</label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            if (!validateFileSize(file)) {
+                              setError('NIC back must be less than 500KB')
+                              toast.danger('NIC back must be less than 500KB', 'Error')
+                              return
+                            }
+                            setNicBackFile(file)
+                          }
+                        }}
+                        className="hidden"
+                        id="nicBack"
+                      />
+                      <label
+                        htmlFor="nicBack"
+                        className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors"
+                      >
+                        {nicBackFile ? (
+                          <>
+                            <CheckCircle className="w-6 h-6 text-green-500 mb-2" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">{nicBackFile.name}</span>
+                          </>
+                        ) : formData.nicBack ? (
+                          <>
+                            <CheckCircle className="w-6 h-6 text-green-500 mb-2" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Uploaded</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-6 h-6 text-gray-400 mb-2" />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">Upload</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Max 500KB per image</p>
+              </div>
+
               <ProfileForm formData={formData} onChange={handleChange} saving={saving} />
               
               <div className="flex gap-4">
@@ -276,6 +537,9 @@ export default function ProfilePage() {
                         caste: profile.caste || '',
                         motherTongue: profile.motherTongue || '',
                         description: profile.description || '',
+                        avatar: profile.avatar || '',
+                        nicFront: profile.nicFront || '',
+                        nicBack: profile.nicBack || '',
                       })
                     }
                   }}

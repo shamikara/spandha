@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { Gender } from '@prisma/client'
 import { verifyToken } from '@/lib/auth'
+import { emailService } from '@/lib/services/notification'
 
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -17,6 +18,9 @@ const profileSchema = z.object({
   caste: z.string().optional(),
   motherTongue: z.string().optional(),
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+  avatar: z.string().optional(),
+  nicFront: z.string().optional(),
+  nicBack: z.string().optional(),
 })
 
 function toGender(value: z.infer<typeof profileSchema>['gender']): Gender {
@@ -115,6 +119,30 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    // Send welcome email if user has email
+    if (profile.user.email) {
+      const welcomeHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #722f37;">Welcome to Spandha!</h2>
+          <p>Dear ${profile.firstName},</p>
+          <p>Thank you for joining Spandha, Sri Lanka's trusted matrimonial platform. Your profile has been created successfully.</p>
+          <p>Next steps:</p>
+          <ul>
+            <li>Complete your profile with more details</li>
+            <li>Upload your NIC for verification to unlock all features</li>
+            <li>Browse and send interest to potential matches</li>
+          </ul>
+          <p>If you have any questions, feel free to contact us.</p>
+          <p>Best regards,<br>Team Spandha</p>
+        </div>
+      `
+      await emailService.sendEmail(
+        profile.user.email,
+        'Welcome to Spandha!',
+        welcomeHtml
+      )
+    }
 
     return NextResponse.json({
       message: 'Profile created successfully',

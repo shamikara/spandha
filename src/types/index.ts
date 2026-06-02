@@ -32,6 +32,8 @@ export interface Profile {
   smoking: string | null
   description: string | null
   avatar: string | null
+  nicFront: string | null
+  nicBack: string | null
   isActive: boolean
   createdAt: Date
   updatedAt: Date

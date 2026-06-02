@@ -8,7 +8,7 @@ export async function DELETE(
 ) {
   try {
     const user = verifyToken(request)
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -18,13 +18,14 @@ export async function DELETE(
 
     const { id } = params
 
-    // Find the advert and verify ownership
+    // Find the advert
     const advert = await prisma.advert.findUnique({
       where: { id },
       include: {
         user: {
           select: {
             id: true,
+            isAdmin: true,
           },
         },
       },
@@ -37,24 +38,25 @@ export async function DELETE(
       )
     }
 
-    if (advert.userId !== user.userId) {
+    // Check if user is admin
+    const currentUser = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { isAdmin: true },
+    })
+
+    if (!currentUser || !currentUser.isAdmin) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Please contact admin to request advert deletion.' },
+        { status: 403 }
       )
     }
 
-    // Delete the advert
+    // Admin can delete any advert
     await prisma.advert.delete({
       where: { id },
     })
 
-    // In production, you would:
-    // 1. Log the deletion
-    // 2. Update analytics
-    // 3. Send confirmation notification
-
-    console.log(`Advert ${id} deleted by user ${user.userId}`)
+    console.log(`Advert ${id} deleted by admin ${user.userId}`)
 
     return NextResponse.json({
       message: 'Advert deleted successfully',

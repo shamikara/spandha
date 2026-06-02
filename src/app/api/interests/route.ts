@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { InterestStatus } from '@prisma/client'
 import { verifyToken } from '@/lib/auth'
 import { notifyUser } from '@/lib/services/notifications'
+import { emailService } from '@/lib/services/notification'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +24,24 @@ function toInterestStatus(status: z.infer<typeof updateInterestSchema>['status']
 export async function POST(request: NextRequest) {
   try {
     const user = verifyToken(request)
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // Verification gating: check if user is verified
+    const currentUser = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { isVerified: true },
+    })
+
+    if (!currentUser || !currentUser.isVerified) {
+      return NextResponse.json(
+        { error: 'You must verify your NIC before sending interests. Please upload your NIC documents and wait for admin verification.' },
+        { status: 403 }
       )
     }
 
@@ -114,6 +128,24 @@ export async function POST(request: NextRequest) {
       message: `${senderName} is interested in your profile.`,
       link: '/dashboard/interests',
     })
+
+    // Send email notification if target user has email
+    if (targetUser.email) {
+      const interestHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #722f37;">New Interest Received!</h2>
+          <p>Dear ${targetUser.profile?.firstName || 'Member'},</p>
+          <p>You have received a new interest from <strong>${senderName}</strong>.</p>
+          <p>Login to your Spandha dashboard to view and respond to this interest.</p>
+          <p>Best regards,<br>Team Spandha</p>
+        </div>
+      `
+      await emailService.sendEmail(
+        targetUser.email,
+        'New Interest Received on Spandha',
+        interestHtml
+      )
+    }
 
     console.log(`New interest sent from ${user.userId} to ${toUserId}`)
 

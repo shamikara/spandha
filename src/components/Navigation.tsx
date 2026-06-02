@@ -25,12 +25,12 @@ export default function Navigation() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/profile')
+      const response = await fetch('/api/auth/session')
       setIsAuthenticated(response.ok)
-      
+
       if (response.ok) {
         const data = await response.json()
-        setUserProfile(data.profile)
+        setUserProfile(data.user.profile)
         const notificationsResponse = await fetch('/api/notifications?limit=1')
         if (notificationsResponse.ok) {
           const notificationsData = await notificationsResponse.json()
@@ -123,9 +123,17 @@ export default function Navigation() {
                   href="/dashboard"
                   className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-wedding-maroon dark:hover:text-wedding-gold transition-colors"
                 >
-                  <div className="w-8 h-8 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-xs">
-                    {userProfile?.firstName?.[0]}{userProfile?.lastName?.[0]}
-                  </div>
+                  {userProfile?.avatar ? (
+                    <img
+                      src={userProfile.avatar}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-wedding-gold"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-xs">
+                      {userProfile?.firstName?.[0]}{userProfile?.lastName?.[0]}
+                    </div>
+                  )}
                   <span className="hidden lg:block">
                     {userProfile?.firstName} {userProfile?.lastName}
                   </span>
@@ -214,9 +222,17 @@ export default function Navigation() {
                     className="flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-wedding-maroon dark:hover:text-wedding-gold hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <div className="w-8 h-8 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-xs">
-                      {userProfile?.firstName?.[0]}{userProfile?.lastName?.[0]}
-                    </div>
+                    {userProfile?.avatar ? (
+                      <img
+                        src={userProfile.avatar}
+                        alt="Avatar"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-wedding-gold"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-xs">
+                        {userProfile?.firstName?.[0]}{userProfile?.lastName?.[0]}
+                      </div>
+                    )}
                     <span>{userProfile?.firstName} {userProfile?.lastName}</span>
                   </Link>
                   <Link

@@ -13,6 +13,7 @@ interface ProfileData {
   job?: string | null
   education?: string | null
   description?: string | null
+  avatar?: string | null
   isActive: boolean
   user?: {
     phone: string | null
@@ -58,9 +59,17 @@ export default function DashboardProfilePage() {
       ) : profile && (
         <div className="wedding-card p-6">
           <div className="mb-6 flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-wedding-gold text-xl font-bold text-wedding-maroon">
-              {profile.firstName[0]}{profile.lastName[0]}
-            </div>
+            {profile.avatar ? (
+              <img
+                src={profile.avatar}
+                alt="Avatar"
+                className="h-16 w-16 rounded-full object-cover border-2 border-wedding-gold"
+              />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-wedding-gold text-xl font-bold text-wedding-maroon">
+                {profile.firstName[0]}{profile.lastName[0]}
+              </div>
+            )}
             <div>
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{profile.firstName} {profile.lastName}</h2>
               <p className="text-gray-600 dark:text-gray-400">{profile.age} years, {profile.location}</p>

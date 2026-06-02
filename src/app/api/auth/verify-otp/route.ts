@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
         phone: user.phone,
         email: user.email,
         isVerified: user.isVerified,
+        isAdmin: user.isAdmin,
         profile: user.profile,
       },
     })

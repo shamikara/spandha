@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       include: {
         profile: true,
+        adverts: true,
       },
       orderBy: {
         createdAt: 'desc',

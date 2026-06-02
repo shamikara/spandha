@@ -27,6 +27,9 @@ interface UserProfile {
   caste?: string
   motherTongue?: string
   description?: string
+  isVerified?: boolean
+  isPremium?: boolean
+  isAdmin?: boolean
 }
 
 interface AdvertBuilderData {
@@ -298,7 +301,12 @@ export default function PostAdvertPage() {
 
       if (profileResponse.ok) {
         const profileData = await profileResponse.json()
-        setUserProfile(profileData.profile)
+        setUserProfile({
+          ...profileData.profile,
+          isVerified: profileData.profile.user?.isVerified || false,
+          isPremium: profileData.profile.user?.isPremium || false,
+          isAdmin: profileData.profile.user?.isAdmin || false,
+        })
       } else {
         setError('Please create a profile first before posting adverts')
         setLoading(false)
@@ -326,6 +334,33 @@ export default function PostAdvertPage() {
     if (showForm) {
       setShowForm(false)
       return
+    }
+
+    // Check verification status
+    if (!userProfile?.isVerified) {
+      setError('You must be verified to post adverts. Please upload your NIC documents in your profile.')
+      return
+    }
+
+    // Check posting limits
+    const activeAdverts = adverts.filter(a => a.isActive && new Date(a.expiresAt) > new Date())
+    const maxActiveAdverts = userProfile?.isPremium ? 5 : 1
+
+    if (activeAdverts.length >= maxActiveAdverts) {
+      setError(`You have reached your maximum of ${maxActiveAdverts} active adverts. Please wait for an advert to expire or upgrade to Premium for up to 5 active adverts.`)
+      return
+    }
+
+    // For free users, check 30-day posting limit
+    if (!userProfile?.isPremium) {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      const recentAdverts = adverts.filter(a => new Date(a.createdAt) > thirtyDaysAgo)
+      if (recentAdverts.length >= 1) {
+        const lastAdvertDate = new Date(recentAdverts[0].createdAt)
+        const nextAvailableDate = new Date(lastAdvertDate.getTime() + 30 * 24 * 60 * 60 * 1000)
+        setError(`Free users can post 1 advert per 30 days. Next post available on ${nextAvailableDate.toLocaleDateString()}. Upgrade to Premium for more posting flexibility.`)
+        return
+      }
     }
 
     const initialData = createBuilderDataFromProfile(userProfile)
@@ -392,6 +427,12 @@ export default function PostAdvertPage() {
   }
 
   const handleDelete = async (advertId: string) => {
+    // Regular users cannot delete adverts - they can only request deletion
+    if (!userProfile?.isAdmin) {
+      setError('Please contact admin to request advert deletion.')
+      return
+    }
+
     if (!confirm('Are you sure you want to delete this advert?')) {
       return
     }
@@ -672,7 +713,12 @@ export default function PostAdvertPage() {
           ) : (
             <div className="space-y-6">
               {adverts.map(advert => (
-                <AdvertCard key={advert.id} advert={advert} onDelete={() => handleDelete(advert.id)} />
+                <AdvertCard
+                  key={advert.id}
+                  advert={advert}
+                  onDelete={() => handleDelete(advert.id)}
+                  isAdmin={userProfile?.isAdmin}
+                />
               ))}
             </div>
           )}
@@ -767,9 +813,11 @@ function TextareaField({
 function AdvertCard({
   advert,
   onDelete,
+  isAdmin,
 }: {
   advert: Advert
   onDelete: () => void
+  isAdmin?: boolean
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -800,7 +848,7 @@ function AdvertCard({
         <button
           onClick={onDelete}
           className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-          title="Delete advert"
+          title={isAdmin ? "Delete advert" : "Request deletion"}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -824,6 +872,14 @@ function AdvertCard({
         <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
           <p className="text-sm text-yellow-800 dark:text-yellow-400">
             This advert has expired. You can post a new advert to continue your search.
+          </p>
+        </div>
+      )}
+
+      {!isAdmin && (
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-400">
+            To delete this advert, please contact the administrator.
           </p>
         </div>
       )}

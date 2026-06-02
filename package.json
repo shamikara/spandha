@@ -16,8 +16,10 @@
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
+    "@supabase/supabase-js": "^2.106.2",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^12.38.0",
+    "jose": "^6.2.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^1.8.0",
     "nanoid": "^3.3.7",

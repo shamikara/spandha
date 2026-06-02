@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
 // Routes that require authentication
 const protectedRoutes = ['/profile', '/post', '/dashboard', '/admin']
@@ -7,7 +8,7 @@ const protectedRoutes = ['/profile', '/post', '/dashboard', '/admin']
 // Routes that are only accessible when NOT authenticated
 const authRoutes = ['/auth']
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value
   const { pathname } = request.nextUrl
 
@@ -16,10 +17,22 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   )
 
-  if (isProtectedRoute && !token) {
-    // Redirect to login if not authenticated
-    const loginUrl = new URL('/auth', request.url)
-    return NextResponse.redirect(loginUrl)
+  if (isProtectedRoute) {
+    if (!token) {
+      // Redirect to login if not authenticated
+      const loginUrl = new URL('/auth', request.url)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    // Check if token is expired
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+      await jwtVerify(token, secret)
+    } catch (error) {
+      // Token is invalid or expired
+      const loginUrl = new URL('/auth', request.url)
+      return NextResponse.redirect(loginUrl)
+    }
   }
 
   // 2. Check if the user is trying to access an auth route while already logged in
