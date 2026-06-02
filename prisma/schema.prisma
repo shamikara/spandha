@@ -46,6 +46,8 @@ model Profile {
   smoking      String?
   description  String?
   avatar       String?
+  nicFront     String?
+  nicBack      String?
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

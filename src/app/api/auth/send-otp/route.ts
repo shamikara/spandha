@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { generateOTP, storeOtp, checkRateLimit } from '@/lib/otp'
 import { smsService, emailService } from '@/lib/services/notification'
+import { OtpEmail } from '@/emails'
 
 const sendOtpSchema = z.object({
   identifier: z.string().trim().min(1, 'Email or phone number is required'),
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
     if (deliveryPhone) {
       deliveries.push(
         smsService
-          .sendSMS(deliveryPhone, `Your Spandha verification code is: ${otp}`)
+          .sendSMS(deliveryPhone, `Spandha Login Code: ${otp}. This code expires in 10 minutes. Do not share it with anyone.`)
           .then(sent => {
             if (sent) sentTo.push('sms')
             return sent
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
           .sendEmail(
             deliveryEmail,
             'Your Spandha Login Code',
-            `<h2>Your verification code is: <strong>${otp}</strong></h2><p>This code will expire in 10 minutes.</p>`
+            OtpEmail(otp)
           )
           .then(sent => {
             if (sent) sentTo.push('email')
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
     const results = await Promise.all(deliveries)
 
     if (!results.some(Boolean)) {
-       return NextResponse.json(
+      return NextResponse.json(
         { error: 'Failed to send OTP. Please try again.' },
         { status: 500 }
       )
