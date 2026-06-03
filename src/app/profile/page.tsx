@@ -42,7 +42,7 @@ export default function ProfilePage() {
   const [nicBackFile, setNicBackFile] = useState<File | null>(null)
 
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const { isDark } = useTheme()
   const toast = useToast()
 
@@ -273,7 +273,7 @@ export default function ProfilePage() {
                   Fill in your details to start browsing proposals
                 </p>
               </div>
-              <ProfileForm formData={formData} onChange={handleChange} saving={saving} />
+              <ProfileForm formData={formData} onChange={handleChange} saving={saving} language={language} />
             </form>
           ) : profile && !isEditing ? (
             // View profile
@@ -515,7 +515,7 @@ export default function ProfilePage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Max 500KB per image</p>
               </div>
 
-              <ProfileForm formData={formData} onChange={handleChange} saving={saving} />
+              <ProfileForm formData={formData} onChange={handleChange} saving={saving} language={language} />
               
               <div className="flex gap-4">
                 <button
@@ -566,11 +566,13 @@ export default function ProfilePage() {
 function ProfileForm({ 
   formData, 
   onChange, 
-  saving 
+  saving,
+  language
 }: { 
   formData: any
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
-  saving: boolean 
+  saving: boolean
+  language: string
 }) {
   const { t } = useTranslation()
 
@@ -588,7 +590,7 @@ function ProfileForm({
             onChange={onChange}
             required
             className="wedding-input w-full"
-            placeholder="Enter your first name"
+            placeholder={language === 'si' ? 'ඔබගේ මුල් නම ඇතුළත් කරන්න' : 'Enter your first name'}
           />
         </div>
 
@@ -603,7 +605,7 @@ function ProfileForm({
             onChange={onChange}
             required
             className="wedding-input w-full"
-            placeholder="Enter your last name"
+            placeholder={language === 'si' ? 'ඔබගේ වාසගම ඇතුළත් කරන්න' : 'Enter your last name'}
           />
         </div>
       </div>
@@ -637,7 +639,7 @@ function ProfileForm({
             required
             className="wedding-input w-full"
           >
-            <option value="">Select gender</option>
+            <option value="">{language === 'si' ? 'ස්ත්‍රී පුරුෂ භාවය තෝරන්න' : 'Select gender'}</option>
             <option value="male">{t('profile.male')}</option>
             <option value="female">{t('profile.female')}</option>
           </select>
@@ -654,7 +656,7 @@ function ProfileForm({
             onChange={onChange}
             required
             className="wedding-input w-full"
-            placeholder="Colombo"
+            placeholder={language === 'si' ? 'කොළඹ' : 'Colombo'}
           />
         </div>
       </div>
@@ -670,7 +672,7 @@ function ProfileForm({
             value={formData.job}
             onChange={onChange}
             className="wedding-input w-full"
-            placeholder="Software Engineer"
+            placeholder={language === 'si' ? 'මෘදුකාංග ඉංජිනේරු' : 'Software Engineer'}
           />
         </div>
 
@@ -684,7 +686,7 @@ function ProfileForm({
             value={formData.education}
             onChange={onChange}
             className="wedding-input w-full"
-            placeholder="BSc Computer Science"
+            placeholder={language === 'si' ? 'පරිගණක විද්‍යාව පිළිබඳ උපාධියක්' : 'BSc Computer Science'}
           />
         </div>
       </div>
@@ -700,7 +702,7 @@ function ProfileForm({
             value={formData.height}
             onChange={onChange}
             className="wedding-input w-full"
-            placeholder="5 feet 8 inches"
+            placeholder={language === 'si' ? 'අඩි 5 අඟල් 8' : '5 feet 8 inches'}
           />
         </div>
 
@@ -714,7 +716,7 @@ function ProfileForm({
             value={formData.religion}
             onChange={onChange}
             className="wedding-input w-full"
-            placeholder="Buddhism"
+            placeholder={language === 'si' ? 'බුද්ධාගම' : 'Buddhism'}
           />
         </div>
 
@@ -728,7 +730,7 @@ function ProfileForm({
             value={formData.caste}
             onChange={onChange}
             className="wedding-input w-full"
-            placeholder="Sinhala"
+            placeholder={language === 'si' ? 'කුලය (අත්‍යවශ්‍ය නොවේ)' : 'Optional'}
           />
         </div>
       </div>
@@ -743,7 +745,7 @@ function ProfileForm({
           value={formData.motherTongue}
           onChange={onChange}
           className="wedding-input w-full"
-          placeholder="Sinhala"
+          placeholder={language === 'si' ? 'සිංහල' : 'Sinhala'}
         />
       </div>
 
@@ -758,7 +760,7 @@ function ProfileForm({
           rows={4}
           maxLength={500}
           className="wedding-input w-full resize-none"
-          placeholder="Tell us about yourself, your interests, and what you're looking for in a partner..."
+          placeholder={language === 'si' ? 'ඔබ ගැන, ඔබේ උනන්දුව දක්වන දේ සහ ඔබ සහකරුවෙකුගෙන් බලාපොරොත්තු වන දේ අපට පවසන්න...' : "Tell us about yourself, your interests, and what you're looking for in a partner..."}
         />
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {formData.description.length}/500 characters
@@ -770,7 +772,7 @@ function ProfileForm({
         disabled={saving}
         className="wedding-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {saving ? t('common.loading') : (formData.firstName ? t('profile.save') : 'Create Profile')}
+        {saving ? t('common.loading') : (formData.firstName ? t('profile.save') : (language === 'si' ? 'පැතිකඩ සාදන්න' : 'Create Profile'))}
       </button>
     </>
   )

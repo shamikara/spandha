@@ -169,20 +169,213 @@ function sentence(value: string) {
   return text ? `${text}.` : ''
 }
 
-function candidateLabel(type: string) {
+const zodiacSignsSi: Record<string, string> = {
+  'Aries': 'මේෂ',
+  'Taurus': 'වෘෂභ',
+  'Gemini': 'මිථුන',
+  'Cancer': 'කටක',
+  'Leo': 'සිංහ',
+  'Virgo': 'කන්‍යා',
+  'Libra': 'තුලා',
+  'Scorpio': 'වෘශ්චික',
+  'Sagittarius': 'ධනු',
+  'Capricorn': 'මකර',
+  'Aquarius': 'කුම්භ',
+  'Pisces': 'මීන',
+}
+
+const lagnaSignsSi: Record<string, string> = {
+  'Mesha': 'මේෂ',
+  'Vrishabha': 'වෘෂභ',
+  'Mithuna': 'මිථුන',
+  'Kataka': 'කටක',
+  'Simha': 'සිංහ',
+  'Kanya': 'කන්‍යා',
+  'Thula': 'තුලා',
+  'Vrischika': 'වෘශ්චික',
+  'Dhanu': 'ධනු',
+  'Makara': 'මකර',
+  'Kumbha': 'කුම්භ',
+  'Meena': 'මීන',
+}
+
+const nakshatrasSi: Record<string, string> = {
+  'Ashwini': 'අස්විද',
+  'Bharani': 'බෙරණ',
+  'Krittika': 'කැති',
+  'Rohini': 'රෙහෙන',
+  'Mrigashira': 'මුවසිරස',
+  'Ardra': 'අද',
+  'Punarvasu': 'පුනාවස',
+  'Pushya': 'පුෂ',
+  'Ashlesha': 'අස්ලිස',
+  'Magha': 'මා',
+  'Purva Phalguni': 'පුවපල්',
+  'Uttara Phalguni': 'උත්‍රපල්',
+  'Hasta': 'හත',
+  'Chitra': 'සිත',
+  'Swati': 'සා',
+  'Vishakha': 'විසා',
+  'Anuradha': 'අනුර',
+  'Jyeshtha': 'දෙට',
+  'Mula': 'මුල',
+  'Purva Ashadha': 'පුවසල',
+  'Uttara Ashadha': 'උත්‍රසල',
+  'Shravana': 'සුවණ',
+  'Dhanishta': 'දෙනට',
+  'Shatabhisha': 'සියාවස',
+  'Purva Bhadrapada': 'පුවපුටුප',
+  'Uttara Bhadrapada': 'උත්‍රපුටුප',
+  'Revati': 'රේවතී',
+}
+
+const postingForSi: Record<string, string> = {
+  'Parents': 'දෙමාපියන්',
+  'Guardian': 'භාරකරු',
+  'Self': 'තමා',
+  'Relative': 'ඥාතියා',
+  'Family': 'පවුලේ අය',
+}
+
+const maritalStatusSi: Record<string, string> = {
+  'Never married': 'කිසිදිනක විවාහ නොවූ',
+  'Divorced': 'දික්කසාද වූ',
+  'Widowed': 'වැන්දඹු',
+  'Separated': 'වෙන් වූ',
+}
+
+const dietSi: Record<string, string> = {
+  'Vegetarian': 'නිර්මාංශ',
+  'Non-vegetarian': 'නිර්මාංශ නොවන',
+  'Eggetarian': 'බිත්තර සහිත නිර්මාංශ',
+  'No preference': 'විශේෂ මනාපයක් නොමැත',
+}
+
+const habitSi: Record<string, string> = {
+  'Never': 'කිසිවිටෙක නැත',
+  'Occasionally': 'වරින් වර',
+  'Socially': 'සමාජයීය වශයෙන්',
+  'Regularly': 'නිතිපතා',
+  'Prefer not to say': 'ප්‍රකාශ කිරීමට අකමැති',
+}
+
+const horoscopeSi: Record<string, string> = {
+  'Available': 'තිබේ',
+  'Can be shared on request': 'ඉල්ලීම මත බෙදා ගත හැක',
+  'Not required': 'අවශ්‍ය නොවේ',
+}
+
+const kujaSi: Record<string, string> = {
+  'Not present': 'නොමැත',
+  'Present': 'තිබේ',
+  'Unknown': 'නොදනී',
+}
+
+function candidateLabel(type: string, lang: string) {
+  if (lang === 'si') {
+    if (type === 'bride') return 'මනාලිය'
+    if (type === 'groom') return 'මනාලයා'
+    return 'අයදුම්කරු'
+  }
   if (type === 'bride') return 'bride'
   if (type === 'groom') return 'groom'
   return 'candidate'
 }
 
-function proposalIntro(postingFor: string) {
+function proposalIntro(postingFor: string, lang: string) {
+  if (lang === 'si') {
+    const relationship = postingForSi[postingFor] || 'පාර්ශවයන්'
+    if (postingFor === 'Parents' || postingFor === 'Family' || postingFor === 'Guardian' || postingFor === 'Relative') {
+      return `${relationship} විසින් විවාහ යෝජනා කැඳවනු ලැබේ`
+    }
+    return 'විවාහ යෝජනා කැඳවනු ලැබේ'
+  }
   if (postingFor === 'Parents' || postingFor === 'Family') return `${postingFor} invite proposals`
   if (postingFor === 'Guardian' || postingFor === 'Relative') return `${postingFor} invites proposals`
   return 'Marriage proposals are invited'
 }
 
-function generateAdvert(data: AdvertBuilderData) {
-  const candidate = candidateLabel(data.candidateType)
+function generateAdvert(data: AdvertBuilderData, lang: string = 'en') {
+  if (lang === 'si') {
+    const candidate = candidateLabel(data.candidateType, 'si')
+    const titleParts = [
+      data.location ? `${data.location} ප්‍රදේශයෙන්` : '',
+      data.age ? `${data.age} හැවිරිදි` : '',
+      candidate,
+      'සඳහා විවාහ යෝජනාවක්',
+    ].filter(Boolean)
+
+    const title = titleParts.join(' ').slice(0, 100)
+
+    const introParts = [
+      proposalIntro(data.postingFor, 'si'),
+      data.age ? `${data.age} හැවිරිදි` : '',
+      data.religion ? `${data.religion} භක්තික` : '',
+      data.caste ? `${data.caste} කුලයට අයත්` : '',
+      candidate,
+      data.location ? `${data.location} ප්‍රදේශයේ පදිංචි වේ` : '',
+    ].filter(Boolean)
+    const intro = introParts.join(', ') + '.'
+
+    const educationCareer = joinParts([
+      data.education ? `අධ්‍යාපනය: ${data.education}` : '',
+      data.job ? `රැකියාව: ${data.job}` : '',
+    ])
+
+    const personalDetails = joinParts([
+      data.height ? `උස ${data.height}` : '',
+      data.maritalStatus ? `විවාහක තත්ත්වය: ${maritalStatusSi[data.maritalStatus] || data.maritalStatus}` : '',
+      data.motherTongue ? `මව් භාෂාව: ${data.motherTongue}` : '',
+    ])
+
+    const lifestyleDetails = joinParts([
+      data.diet ? `ආහාර: ${dietSi[data.diet] || data.diet}` : '',
+      data.smokingHabit ? `දුම්පානය: ${habitSi[data.smokingHabit] || data.smokingHabit}` : '',
+      data.drinkingHabit ? `මත්පැන්: ${habitSi[data.drinkingHabit] || data.drinkingHabit}` : '',
+    ])
+
+    const characterDetails = joinParts([
+      data.personality ? data.personality : '',
+      data.hobbies ? `විනෝදාංශ: ${data.hobbies}` : '',
+      data.interests ? `උනන්දුව දක්වන දේ: ${data.interests}` : '',
+    ])
+
+    const horoscopeDetails = joinParts([
+      data.zodiacSign ? `ලග්නය: ${zodiacSignsSi[data.zodiacSign] || data.zodiacSign}` : '',
+      data.lagna ? `ලග්නය (ලග්න): ${lagnaSignsSi[data.lagna] || data.lagna}` : '',
+      data.nakshatra ? `නැකත: ${nakshatrasSi[data.nakshatra] || data.nakshatra}` : '',
+      data.horoscopeAvailable ? `කේන්දරය: ${horoscopeSi[data.horoscopeAvailable] || data.horoscopeAvailable}` : '',
+      data.kujaDosha ? `කුජ දෝෂය: ${kujaSi[data.kujaDosha] || data.kujaDosha}` : '',
+    ])
+
+    const partnerDetails = joinParts([
+      data.lookingForAge ? `වයස ${data.lookingForAge}` : '',
+      data.lookingForEducation ? `අධ්‍යාපනය ${data.lookingForEducation}` : '',
+      data.lookingForJob ? `රැකියාව ${data.lookingForJob}` : '',
+      data.lookingForLocation ? `ප්‍රදේශය ${data.lookingForLocation}` : '',
+    ])
+
+    const content = [
+      sentence(intro),
+      educationCareer ? sentence(`${candidate}ගේ ${educationCareer} වේ`) : '',
+      personalDetails ? sentence(personalDetails) : '',
+      data.familyBackground ? sentence(`පවුල් පසුබිම: ${data.familyBackground}`) : '',
+      lifestyleDetails ? sentence(`ජීවන රටාව: ${lifestyleDetails}`) : '',
+      characterDetails ? sentence(`පෞද්ගලික තොරතුරු: ${characterDetails}`) : '',
+      horoscopeDetails ? sentence(`කේන්දර තොරතුරු: ${horoscopeDetails}`) : '',
+      partnerDetails ? sentence(`බලාපොරොත්තු වන සහකරු/සහකාරියගේ විස්තර: ${partnerDetails}`) : 'කාරුණික, උගත්, පවුලට හිතැති සහකරුවෙකු/සහකාරියක බලාපොරොත්තු වේ.',
+      data.qualities ? sentence(`අපේක්ෂිත ගුණාංග: ${data.qualities}`) : '',
+      data.notes ? sentence(data.notes) : '',
+      'උනන්දුවක් දක්වන පාර්ශවයන්ට Spandha හරහා සම්බන්ධ විය හැක.',
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .slice(0, 1000)
+
+    return { title, content }
+  }
+
+  const candidate = candidateLabel(data.candidateType, 'en')
   const titleParts = [
     data.age ? `${data.age}-year-old` : '',
     candidate,
@@ -192,7 +385,7 @@ function generateAdvert(data: AdvertBuilderData) {
   const title = `Marriage proposal for ${titleParts.join(' ') || 'suitable candidate'}`.slice(0, 100)
 
   const intro = [
-    proposalIntro(data.postingFor),
+    proposalIntro(data.postingFor, 'en'),
     `for a ${joinParts([data.age ? `${data.age}-year-old` : '', data.religion, data.caste, candidate])}`,
     data.location ? `from ${data.location}` : '',
   ]
@@ -288,7 +481,7 @@ export default function PostAdvertPage() {
   const [formData, setFormData] = useState({ title: '', content: '' })
 
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
 
   const checkProfileAndFetchAdverts = useCallback(async () => {
     try {
@@ -364,7 +557,7 @@ export default function PostAdvertPage() {
     }
 
     const initialData = createBuilderDataFromProfile(userProfile)
-    const generatedAdvert = generateAdvert(initialData)
+    const generatedAdvert = generateAdvert(initialData, language)
 
     setBuilderData(initialData)
     setFormData(generatedAdvert)
@@ -374,7 +567,7 @@ export default function PostAdvertPage() {
   const handleBuilderChange = (field: keyof AdvertBuilderData, value: string) => {
     const nextData = { ...builderData, [field]: value }
     setBuilderData(nextData)
-    setFormData(generateAdvert(nextData))
+    setFormData(generateAdvert(nextData, language))
   }
 
   const handlePreviewChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -385,7 +578,7 @@ export default function PostAdvertPage() {
   }
 
   const regenerateAdvert = () => {
-    setFormData(generateAdvert(builderData))
+    setFormData(generateAdvert(builderData, language))
   }
 
   const resetForm = () => {
@@ -402,18 +595,18 @@ export default function PostAdvertPage() {
 
     try {
       const response = await fetch('/api/adverts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          builderData,
-        }),
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           ...formData,
+           builderData,
+         }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess(data.message)
+        setSuccess(t('advert.posted'))
         resetForm()
         checkProfileAndFetchAdverts()
       } else {
@@ -505,125 +698,125 @@ export default function PostAdvertPage() {
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_420px] mb-10">
             <div className="wedding-card p-6 lg:p-8">
               <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold mb-6">
-                Tell us the details
+                {language === 'si' ? 'විස්තර අපට පවසන්න' : 'Tell us the details'}
               </h2>
 
-              <BuilderSection title="Basic details">
-                <SelectField label="Who is posting?" value={builderData.postingFor} onChange={value => handleBuilderChange('postingFor', value)}>
-                  <option value="">Select</option>
-                  <option value="Parents">Parents</option>
-                  <option value="Guardian">Guardian</option>
-                  <option value="Self">Self</option>
-                  <option value="Relative">Relative</option>
-                  <option value="Family">Family</option>
+              <BuilderSection title={language === 'si' ? 'මූලික විස්තර' : 'Basic details'}>
+                <SelectField label={language === 'si' ? 'පළ කරන්නේ කවුද?' : 'Who is posting?'} value={builderData.postingFor} onChange={value => handleBuilderChange('postingFor', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Parents">{language === 'si' ? 'මව්පියන්' : 'Parents'}</option>
+                  <option value="Guardian">{language === 'si' ? 'භාරකරු' : 'Guardian'}</option>
+                  <option value="Self">{language === 'si' ? 'තමා' : 'Self'}</option>
+                  <option value="Relative">{language === 'si' ? 'ඥාතියා' : 'Relative'}</option>
+                  <option value="Family">{language === 'si' ? 'පවුලේ අය' : 'Family'}</option>
                 </SelectField>
 
-                <SelectField label="For who?" value={builderData.candidateType} onChange={value => handleBuilderChange('candidateType', value)}>
-                  <option value="">Select</option>
-                  <option value="bride">Bride</option>
-                  <option value="groom">Groom</option>
+                <SelectField label={language === 'si' ? 'කා සඳහාද?' : 'For who?'} value={builderData.candidateType} onChange={value => handleBuilderChange('candidateType', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="bride">{language === 'si' ? 'මනාලිය' : 'Bride'}</option>
+                  <option value="groom">{language === 'si' ? 'මනාලයා' : 'Groom'}</option>
                 </SelectField>
 
-                <TextField label="Age" value={builderData.age} onChange={value => handleBuilderChange('age', value)} placeholder="28" type="number" />
-                <TextField label="Location" value={builderData.location} onChange={value => handleBuilderChange('location', value)} placeholder="Colombo" />
+                <TextField label={language === 'si' ? 'වයස' : 'Age'} value={builderData.age} onChange={value => handleBuilderChange('age', value)} placeholder="28" type="number" />
+                <TextField label={language === 'si' ? 'පදිංචි ප්‍රදේශය' : 'Location'} value={builderData.location} onChange={value => handleBuilderChange('location', value)} placeholder={language === 'si' ? 'කොළඹ' : 'Colombo'} />
               </BuilderSection>
 
-              <BuilderSection title="Education and background">
-                <TextField label="Job / profession" value={builderData.job} onChange={value => handleBuilderChange('job', value)} placeholder="Software Engineer" />
-                <TextField label="Education" value={builderData.education} onChange={value => handleBuilderChange('education', value)} placeholder="BSc, MBA, A/L completed" />
-                <TextField label="Height" value={builderData.height} onChange={value => handleBuilderChange('height', value)} placeholder="5 feet 6 inches" />
-                <SelectField label="Marital status" value={builderData.maritalStatus} onChange={value => handleBuilderChange('maritalStatus', value)}>
-                  <option value="">Select</option>
-                  <option value="Never married">Never married</option>
-                  <option value="Divorced">Divorced</option>
-                  <option value="Widowed">Widowed</option>
-                  <option value="Separated">Separated</option>
+              <BuilderSection title={language === 'si' ? 'අධ්‍යාපනය සහ පවුල් පසුබිම' : 'Education and background'}>
+                <TextField label={language === 'si' ? 'රැකියාව / වෘත්තිය' : 'Job / profession'} value={builderData.job} onChange={value => handleBuilderChange('job', value)} placeholder={language === 'si' ? 'මෘදුකාංග ඉංජිනේරු' : 'Software Engineer'} />
+                <TextField label={language === 'si' ? 'අධ්‍යාපනය' : 'Education'} value={builderData.education} onChange={value => handleBuilderChange('education', value)} placeholder={language === 'si' ? 'පළමු උපාධිය, පශ්චාත් උපාධිය, උසස් පෙළ නිමකළ' : 'BSc, MBA, A/L completed'} />
+                <TextField label={language === 'si' ? 'උස' : 'Height'} value={builderData.height} onChange={value => handleBuilderChange('height', value)} placeholder={language === 'si' ? 'අඩි 5 අඟල් 6' : '5 feet 6 inches'} />
+                <SelectField label={language === 'si' ? 'විවාහක තත්ත්වය' : 'Marital status'} value={builderData.maritalStatus} onChange={value => handleBuilderChange('maritalStatus', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Never married">{language === 'si' ? 'කිසිදිනක විවාහ නොවූ' : 'Never married'}</option>
+                  <option value="Divorced">{language === 'si' ? 'දික්කසාද වූ' : 'Divorced'}</option>
+                  <option value="Widowed">{language === 'si' ? 'වැන්දඹු' : 'Widowed'}</option>
+                  <option value="Separated">{language === 'si' ? 'වෙන් වූ' : 'Separated'}</option>
                 </SelectField>
-                <TextField label="Religion" value={builderData.religion} onChange={value => handleBuilderChange('religion', value)} placeholder="Buddhist" />
-                <TextField label="Caste" value={builderData.caste} onChange={value => handleBuilderChange('caste', value)} placeholder="Optional" />
-                <TextField label="Mother tongue" value={builderData.motherTongue} onChange={value => handleBuilderChange('motherTongue', value)} placeholder="Sinhala" />
-                <TextareaField label="Family background" value={builderData.familyBackground} onChange={value => handleBuilderChange('familyBackground', value)} placeholder="Respectable, close-knit family from Colombo..." />
+                <TextField label={language === 'si' ? 'ආගම' : 'Religion'} value={builderData.religion} onChange={value => handleBuilderChange('religion', value)} placeholder={language === 'si' ? 'බෞද්ධ' : 'Buddhist'} />
+                <TextField label={language === 'si' ? 'කුලය' : 'Caste'} value={builderData.caste} onChange={value => handleBuilderChange('caste', value)} placeholder={language === 'si' ? 'අත්‍යවශ්‍ය නොවේ' : 'Optional'} />
+                <TextField label={language === 'si' ? 'මව් භාෂාව' : 'Mother tongue'} value={builderData.motherTongue} onChange={value => handleBuilderChange('motherTongue', value)} placeholder={language === 'si' ? 'සිංහල' : 'Sinhala'} />
+                <TextareaField label={language === 'si' ? 'පවුල් පසුබිම' : 'Family background'} value={builderData.familyBackground} onChange={value => handleBuilderChange('familyBackground', value)} placeholder={language === 'si' ? 'කොළඹ ප්‍රදේශයේ වැදගත්, කුළුපග පවුලක්...' : 'Respectable, close-knit family from Colombo...'} />
               </BuilderSection>
 
-              <BuilderSection title="Lifestyle and personality">
-                <SelectField label="Diet" value={builderData.diet} onChange={value => handleBuilderChange('diet', value)}>
-                  <option value="">Select</option>
-                  <option value="Vegetarian">Vegetarian</option>
-                  <option value="Non-vegetarian">Non-vegetarian</option>
-                  <option value="Eggetarian">Eggetarian</option>
-                  <option value="No preference">No preference</option>
+              <BuilderSection title={language === 'si' ? 'ජීවන රටාව සහ පෞරුෂය' : 'Lifestyle and personality'}>
+                <SelectField label={language === 'si' ? 'ආහාර රටාව' : 'Diet'} value={builderData.diet} onChange={value => handleBuilderChange('diet', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Vegetarian">{language === 'si' ? 'නිර්මාංශ' : 'Vegetarian'}</option>
+                  <option value="Non-vegetarian">{language === 'si' ? 'නිර්මාංශ නොවන' : 'Non-vegetarian'}</option>
+                  <option value="Eggetarian">{language === 'si' ? 'බිත්තර සහිත නිර්මාංශ' : 'Eggetarian'}</option>
+                  <option value="No preference">{language === 'si' ? 'විශේෂ මනාපයක් නැත' : 'No preference'}</option>
                 </SelectField>
 
-                <SelectField label="Smoking habit" value={builderData.smokingHabit} onChange={value => handleBuilderChange('smokingHabit', value)}>
-                  <option value="">Select</option>
-                  <option value="Never">Never</option>
-                  <option value="Occasionally">Occasionally</option>
-                  <option value="Regularly">Regularly</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
+                <SelectField label={language === 'si' ? 'දුම්පානය' : 'Smoking habit'} value={builderData.smokingHabit} onChange={value => handleBuilderChange('smokingHabit', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Never">{language === 'si' ? 'කිසිවිටෙක නැත' : 'Never'}</option>
+                  <option value="Occasionally">{language === 'si' ? 'වරින් වර' : 'Occasionally'}</option>
+                  <option value="Regularly">{language === 'si' ? 'නිතිපතා' : 'Regularly'}</option>
+                  <option value="Prefer not to say">{language === 'si' ? 'ප්‍රකාශ කිරීමට අකමැති' : 'Prefer not to say'}</option>
                 </SelectField>
 
-                <SelectField label="Drinking habit" value={builderData.drinkingHabit} onChange={value => handleBuilderChange('drinkingHabit', value)}>
-                  <option value="">Select</option>
-                  <option value="Never">Never</option>
-                  <option value="Occasionally">Occasionally</option>
-                  <option value="Socially">Socially</option>
-                  <option value="Regularly">Regularly</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
+                <SelectField label={language === 'si' ? 'මත්පැන් භාවිතය' : 'Drinking habit'} value={builderData.drinkingHabit} onChange={value => handleBuilderChange('drinkingHabit', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Never">{language === 'si' ? 'කිසිවිටෙක නැත' : 'Never'}</option>
+                  <option value="Occasionally">{language === 'si' ? 'වරින් වර' : 'Occasionally'}</option>
+                  <option value="Socially">{language === 'si' ? 'සමාජයීය වශයෙන්' : 'Socially'}</option>
+                  <option value="Regularly">{language === 'si' ? 'නිතිපතා' : 'Regularly'}</option>
+                  <option value="Prefer not to say">{language === 'si' ? 'ප්‍රකාශ කිරීමට අකමැති' : 'Prefer not to say'}</option>
                 </SelectField>
 
-                <TextField label="Hobbies" value={builderData.hobbies} onChange={value => handleBuilderChange('hobbies', value)} placeholder="Reading, music, travel" />
-                <TextField label="Interests" value={builderData.interests} onChange={value => handleBuilderChange('interests', value)} placeholder="Cooking, sports, volunteering" />
-                <TextareaField label="Personality / character" value={builderData.personality} onChange={value => handleBuilderChange('personality', value)} placeholder="Kind, calm, family-oriented, independent..." />
+                <TextField label={language === 'si' ? 'විනෝදාංශ' : 'Hobbies'} value={builderData.hobbies} onChange={value => handleBuilderChange('hobbies', value)} placeholder={language === 'si' ? 'පොත් කියවීම, සංගීතය, සංචාරය' : 'Reading, music, travel'} />
+                <TextField label={language === 'si' ? 'උනන්දුව දක්වන දේ' : 'Interests'} value={builderData.interests} onChange={value => handleBuilderChange('interests', value)} placeholder={language === 'si' ? 'ඉවුම් පිහුම්, ක්‍රීඩා, ස්වේච්ඡා වැඩ' : 'Cooking, sports, volunteering'} />
+                <TextareaField label={language === 'si' ? 'පෞරුෂය / ගතිගුණ' : 'Personality / character'} value={builderData.personality} onChange={value => handleBuilderChange('personality', value)} placeholder={language === 'si' ? 'කාරුණික, සන්සුන්, පවුලට හිතැති, ස්වාධීන...' : 'Kind, calm, family-oriented, independent...'} />
               </BuilderSection>
 
-              <BuilderSection title="Horoscope details">
-                <SelectField label="Astro / zodiac sign" value={builderData.zodiacSign} onChange={value => handleBuilderChange('zodiacSign', value)}>
-                  <option value="">Select</option>
-                  {zodiacSigns.map(sign => <option key={sign} value={sign}>{sign}</option>)}
+              <BuilderSection title={language === 'si' ? 'කේන්දර විස්තර' : 'Horoscope details'}>
+                <SelectField label={language === 'si' ? 'ලග්නය (ලෝක සම්මත)' : 'Astro / zodiac sign'} value={builderData.zodiacSign} onChange={value => handleBuilderChange('zodiacSign', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  {zodiacSigns.map(sign => <option key={sign} value={sign}>{language === 'si' ? (zodiacSignsSi[sign] || sign) : sign}</option>)}
                 </SelectField>
 
-                <SelectField label="Lagna" value={builderData.lagna} onChange={value => handleBuilderChange('lagna', value)}>
-                  <option value="">Select</option>
-                  {lagnaSigns.map(sign => <option key={sign} value={sign}>{sign}</option>)}
+                <SelectField label={language === 'si' ? 'ලග්නය (දේශීය)' : 'Lagna'} value={builderData.lagna} onChange={value => handleBuilderChange('lagna', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  {lagnaSigns.map(sign => <option key={sign} value={sign}>{language === 'si' ? (lagnaSignsSi[sign] || sign) : sign}</option>)}
                 </SelectField>
 
-                <SelectField label="Nakshatra" value={builderData.nakshatra} onChange={value => handleBuilderChange('nakshatra', value)}>
-                  <option value="">Select</option>
-                  {nakshatras.map(nakshatra => <option key={nakshatra} value={nakshatra}>{nakshatra}</option>)}
+                <SelectField label={language === 'si' ? 'නැකත' : 'Nakshatra'} value={builderData.nakshatra} onChange={value => handleBuilderChange('nakshatra', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  {nakshatras.map(nakshatra => <option key={nakshatra} value={nakshatra}>{language === 'si' ? (nakshatrasSi[nakshatra] || nakshatra) : nakshatra}</option>)}
                 </SelectField>
 
-                <SelectField label="Horoscope" value={builderData.horoscopeAvailable} onChange={value => handleBuilderChange('horoscopeAvailable', value)}>
-                  <option value="">Select</option>
-                  <option value="Available">Available</option>
-                  <option value="Can be shared on request">Can be shared on request</option>
-                  <option value="Not required">Not required</option>
+                <SelectField label={language === 'si' ? 'කේන්දර සටහන' : 'Horoscope'} value={builderData.horoscopeAvailable} onChange={value => handleBuilderChange('horoscopeAvailable', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Available">{language === 'si' ? 'තිබේ' : 'Available'}</option>
+                  <option value="Can be shared on request">{language === 'si' ? 'ඉල්ලීම මත ලබා දිය හැක' : 'Can be shared on request'}</option>
+                  <option value="Not required">{language === 'si' ? 'අවශ්‍ය නොවේ' : 'Not required'}</option>
                 </SelectField>
 
-                <SelectField label="Kuja dosha" value={builderData.kujaDosha} onChange={value => handleBuilderChange('kujaDosha', value)}>
-                  <option value="">Select</option>
-                  <option value="Not present">Not present</option>
-                  <option value="Present">Present</option>
-                  <option value="Unknown">Unknown</option>
+                <SelectField label={language === 'si' ? 'කුජ දෝෂය' : 'Kuja dosha'} value={builderData.kujaDosha} onChange={value => handleBuilderChange('kujaDosha', value)}>
+                  <option value="">{language === 'si' ? 'තෝරන්න' : 'Select'}</option>
+                  <option value="Not present">{language === 'si' ? 'නොමැත' : 'Not present'}</option>
+                  <option value="Present">{language === 'si' ? 'තිබේ' : 'Present'}</option>
+                  <option value="Unknown">{language === 'si' ? 'නොදනී' : 'Unknown'}</option>
                 </SelectField>
               </BuilderSection>
 
-              <BuilderSection title="Looking for">
-                <TextField label="Preferred age range" value={builderData.lookingForAge} onChange={value => handleBuilderChange('lookingForAge', value)} placeholder="28-35" />
-                <TextField label="Preferred education" value={builderData.lookingForEducation} onChange={value => handleBuilderChange('lookingForEducation', value)} placeholder="Graduate or professionally qualified" />
-                <TextField label="Preferred job" value={builderData.lookingForJob} onChange={value => handleBuilderChange('lookingForJob', value)} placeholder="Stable profession" />
-                <TextField label="Preferred location" value={builderData.lookingForLocation} onChange={value => handleBuilderChange('lookingForLocation', value)} placeholder="Colombo or suburbs" />
-                <TextareaField label="Qualities expected" value={builderData.qualities} onChange={value => handleBuilderChange('qualities', value)} placeholder="Kind, educated, family-oriented, respectful..." />
-                <TextareaField label="Extra notes" value={builderData.notes} onChange={value => handleBuilderChange('notes', value)} placeholder="Any other important details..." />
+              <BuilderSection title={language === 'si' ? 'බලාපොරොත්තු වන සහකරු/සහකාරියගේ විස්තර' : 'Looking for'}>
+                <TextField label={language === 'si' ? 'බලාපොරොත්තු වන වයස් සීමාව' : 'Preferred age range'} value={builderData.lookingForAge} onChange={value => handleBuilderChange('lookingForAge', value)} placeholder="28-35" />
+                <TextField label={language === 'si' ? 'බලාපොරොත්තු වන අධ්‍යාපනය' : 'Preferred education'} value={builderData.lookingForEducation} onChange={value => handleBuilderChange('lookingForEducation', value)} placeholder={language === 'si' ? 'උපාධිධාරී හෝ වෘත්තීය මට්ටමේ සුදුසුකම් සහිත' : 'Graduate or professionally qualified'} />
+                <TextField label={language === 'si' ? 'බලාපොරොත්තු වන රැකියාව' : 'Preferred job'} value={builderData.lookingForJob} onChange={value => handleBuilderChange('lookingForJob', value)} placeholder={language === 'si' ? 'ස්ථාවර රැකියාවක් සහිත' : 'Stable profession'} />
+                <TextField label={language === 'si' ? 'බලාපොරොත්තු වන පදිංචි ප්‍රදේශය' : 'Preferred location'} value={builderData.lookingForLocation} onChange={value => handleBuilderChange('lookingForLocation', value)} placeholder={language === 'si' ? 'කොළඹ හෝ තදාසන්න ප්‍රදේශවලින්' : 'Colombo or suburbs'} />
+                <TextareaField label={language === 'si' ? 'අපේක්ෂා කරන ගුණාංග' : 'Qualities expected'} value={builderData.qualities} onChange={value => handleBuilderChange('qualities', value)} placeholder={language === 'si' ? 'කාරුණික, උගත්, පවුලට හිතැති...' : 'Kind, educated, family-oriented, respectful...'} />
+                <TextareaField label={language === 'si' ? 'වෙනත් සටහන්' : 'Extra notes'} value={builderData.notes} onChange={value => handleBuilderChange('notes', value)} placeholder={language === 'si' ? 'වෙනත් වැදගත් තොරතුරු...' : 'Any other important details...'} />
               </BuilderSection>
             </div>
 
             <div className="wedding-card p-6 lg:p-8 lg:sticky lg:top-28 self-start">
               <div className="mb-5">
                 <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold">
-                  Advert preview
+                  {language === 'si' ? 'දැන්වීම් පෙරදසුන' : 'Advert preview'}
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  This updates automatically. Review and edit before posting.
+                  {language === 'si' ? 'මෙය ස්වයංක්‍රීයව යාවත්කාලීන වේ. පළ කිරීමට පෙර සමාලෝචනය කර සංස්කරණය කරන්න.' : 'This updates automatically. Review and edit before posting.'}
                 </p>
               </div>
 

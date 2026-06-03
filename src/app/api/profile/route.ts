@@ -18,9 +18,9 @@ const profileSchema = z.object({
   caste: z.string().optional(),
   motherTongue: z.string().optional(),
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
-  avatar: z.string().optional(),
-  nicFront: z.string().optional(),
-  nicBack: z.string().optional(),
+  avatar: z.string().nullable().optional(),
+  nicFront: z.string().nullable().optional(),
+  nicBack: z.string().nullable().optional(),
 })
 
 function toGender(value: z.infer<typeof profileSchema>['gender']): Gender {

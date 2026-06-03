@@ -509,13 +509,13 @@ export default function AuthPage() {
                 </div>
 
                 <div>
-                  <label className={labelClasses}>Location</label>
+                  <label className={labelClasses}>{t('profile.location')}</label>
                   <input
                     type="text"
                     required
                     value={location}
                     onChange={e => setLocation(e.target.value)}
-                    placeholder="e.g., Colombo, Kandy, Galle"
+                    placeholder={language === 'si' ? 'උදා: කොළඹ, මහනුවර, ගාල්ල' : 'e.g., Colombo, Kandy, Galle'}
                     className={inputClasses}
                   />
                 </div>

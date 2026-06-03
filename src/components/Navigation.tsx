@@ -26,19 +26,29 @@ export default function Navigation() {
   const checkAuth = async () => {
     try {
       const response = await fetch('/api/auth/session')
-      setIsAuthenticated(response.ok)
-
       if (response.ok) {
         const data = await response.json()
-        setUserProfile(data.user.profile)
-        const notificationsResponse = await fetch('/api/notifications?limit=1')
-        if (notificationsResponse.ok) {
-          const notificationsData = await notificationsResponse.json()
-          setUnreadNotifications(notificationsData.unreadCount || 0)
+        if (data.isAuthenticated && data.user) {
+          setIsAuthenticated(true)
+          setUserProfile(data.user.profile)
+          
+          const notificationsResponse = await fetch('/api/notifications?limit=1')
+          if (notificationsResponse.ok) {
+            const notificationsData = await notificationsResponse.json()
+            setUnreadNotifications(notificationsData.unreadCount || 0)
+          }
+        } else {
+          setIsAuthenticated(false)
+          setUserProfile(null)
         }
+      } else {
+        setIsAuthenticated(false)
+        setUserProfile(null)
       }
     } catch (error) {
+      console.error('checkAuth error:', error)
       setIsAuthenticated(false)
+      setUserProfile(null)
     }
   }
 
