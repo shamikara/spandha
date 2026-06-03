@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
     return () => clearTimeout(delayDebounceFn)
   }, [fetchUsers])
 
-  const toggleStatus = async (userId: string, field: 'isVerified' | 'isPremium' | 'isAdmin', currentValue: boolean) => {
+  const toggleStatus = async (userId: string, field: 'isNicVerified' | 'isPremium' | 'isAdmin', currentValue: boolean) => {
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: 'PATCH',
@@ -215,10 +215,10 @@ export default function AdminUsersPage() {
                           Review Profile
                         </button>
                         <button
-                          onClick={() => toggleStatus(user.id, 'isVerified', user.isVerified)}
+                          onClick={() => toggleStatus(user.id, 'isNicVerified', user.isNicVerified)}
                           className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5"
                         >
-                          {user.isVerified ? 'Revoke' : 'Verify'}
+                          {user.isNicVerified ? 'Revoke' : 'Verify'}
                         </button>
                         <button
                           onClick={() => toggleStatus(user.id, 'isPremium', !!user.isPremium)}
@@ -376,15 +376,15 @@ export default function AdminUsersPage() {
                       </div>
                       <div className="flex gap-3">
                         <button
-                          onClick={() => toggleStatus(selectedUser.id, 'isVerified', selectedUser.isVerified)}
+                          onClick={() => toggleStatus(selectedUser.id, 'isNicVerified', selectedUser.isNicVerified)}
                           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
                         >
-                          {selectedUser.isVerified ? 'Revoke Verification' : 'Verify User'}
+                          {selectedUser.isNicVerified ? 'Revoke Verification' : 'Verify User'}
                         </button>
                         <button
                           onClick={() => {
                             if (confirm('Are you sure you want to reject this user?')) {
-                              toggleStatus(selectedUser.id, 'isVerified', selectedUser.isVerified)
+                              toggleStatus(selectedUser.id, 'isNicVerified', selectedUser.isNicVerified)
                             }
                           }}
                           className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"

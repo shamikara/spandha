@@ -19,6 +19,7 @@ interface ProfileData {
     phone: string | null
     email?: string | null
     isVerified: boolean
+    isNicVerified: boolean
   }
 }
 
@@ -82,7 +83,7 @@ export default function DashboardProfilePage() {
             <Detail label="Job" value={profile.job || 'Not added'} />
             <Detail label="Education" value={profile.education || 'Not added'} />
             <Detail label="Phone" value={profile.user?.phone || 'Not added'} />
-            <Detail label="Verification" value={profile.user?.isVerified ? 'Verified' : 'Pending'} />
+            <Detail label="Verification" value={profile.user?.isNicVerified ? 'Verified' : 'Pending'} />
           </div>
 
           <div className="mt-6">

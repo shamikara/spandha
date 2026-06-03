@@ -32,13 +32,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verification gating: check if user is verified
+    // Verification gating: check if user is NIC verified
     const currentUser = await prisma.user.findUnique({
       where: { id: user.userId },
-      select: { isVerified: true },
+      select: { isNicVerified: true },
     })
 
-    if (!currentUser || !currentUser.isVerified) {
+    if (!currentUser || !currentUser.isNicVerified) {
       return NextResponse.json(
         { error: 'You must verify your NIC before sending interests. Please upload your NIC documents and wait for admin verification.' },
         { status: 403 }

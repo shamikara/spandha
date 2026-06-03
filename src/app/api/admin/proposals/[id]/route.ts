@@ -35,7 +35,7 @@ export async function PATCH(
       data: updateData,
       include: {
         user: {
-          select: { phone: true, email: true, isVerified: true, isPremium: true },
+          select: { phone: true, email: true, isVerified: true, isNicVerified: true, isPremium: true },
         },
       },
     })

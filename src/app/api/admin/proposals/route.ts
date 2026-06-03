@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
             phone: true,
             email: true,
             isVerified: true,
+            isNicVerified: true,
             isPremium: true,
             createdAt: true,
           },

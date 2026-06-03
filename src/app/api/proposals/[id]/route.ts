@@ -15,6 +15,7 @@ export async function GET(
         user: {
           select: {
             isVerified: true,
+            isNicVerified: true,
             createdAt: true,
           },
         },

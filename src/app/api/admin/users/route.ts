@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (filter === 'verified') whereClause.isVerified = true
-    if (filter === 'unverified') whereClause.isVerified = false
+    if (filter === 'verified') whereClause.isNicVerified = true
+    if (filter === 'unverified') whereClause.isNicVerified = false
     if (filter === 'premium') whereClause.isPremium = true
     if (filter === 'admin') whereClause.isAdmin = true
 

@@ -7,6 +7,7 @@ export interface User {
   phone: string | null
   email: string | null
   isVerified: boolean
+  isNicVerified: boolean
   isAdmin: boolean
   createdAt: Date
   updatedAt: Date
@@ -56,6 +57,7 @@ export interface Advert {
   title: string
   content: string
   builderData: any | null // JSON
+  isPublished: boolean
   isActive: boolean
   expiresAt: Date | null
   createdAt: Date

@@ -18,8 +18,27 @@ export async function GET(request: NextRequest) {
     const where: any = {
       isActive: true,
       user: {
-        isVerified: true,
+        isNicVerified: true,
       },
+    }
+
+    // Only return profiles with published adverts
+    const publishedAdvertUserIds = await prisma.advert.findMany({
+      where: {
+        isPublished: true,
+      },
+      select: {
+        userId: true,
+      },
+    })
+
+    const publishedUserIds = publishedAdvertUserIds.map(a => a.userId)
+
+    if (publishedUserIds.length > 0) {
+      where.userId = { in: publishedUserIds }
+    } else {
+      // No published adverts, return empty
+      return NextResponse.json({ proposals: [], pagination: { page, limit, total: 0, totalPages: 0 } })
     }
 
     if (gender) {

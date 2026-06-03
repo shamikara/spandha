@@ -77,7 +77,7 @@ export async function PUT(
 ) {
   try {
     const user = verifyToken(request)
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -87,11 +87,11 @@ export async function PUT(
 
     const { id } = params
     const body = await request.json()
-    const { isActive } = body
+    const { isActive, isPublished } = body
 
-    if (typeof isActive !== 'boolean') {
+    if (typeof isActive !== 'boolean' && typeof isPublished !== 'boolean') {
       return NextResponse.json(
-        { error: 'isActive must be a boolean' },
+        { error: 'isActive or isPublished must be provided' },
         { status: 400 }
       )
     }
@@ -115,10 +115,78 @@ export async function PUT(
       )
     }
 
-    // Update advert status
+    // If publishing a draft, check limits
+    if (isPublished === true && advert.isPublished === false) {
+      const currentUser = await prisma.user.findUnique({
+        where: { id: user.userId },
+        select: { isPremium: true },
+      })
+
+      const activeAdvertsCount = await prisma.advert.count({
+        where: {
+          userId: user.userId,
+          isPublished: true,
+          isActive: true,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      })
+
+      if (currentUser?.isPremium) {
+        if (activeAdvertsCount >= 5) {
+          return NextResponse.json(
+            { error: 'Premium users can have maximum 5 active published adverts at a time' },
+            { status: 400 }
+          )
+        }
+      } else {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        const recentAdvert = await prisma.advert.findFirst({
+          where: {
+            userId: user.userId,
+            isPublished: true,
+            createdAt: {
+              gte: thirtyDaysAgo,
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        })
+
+        if (recentAdvert) {
+          const nextAvailableDate = new Date(recentAdvert.createdAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+          return NextResponse.json(
+            {
+              error: 'You can post one advert per month. Your next post will be available on ' + nextAvailableDate.toLocaleDateString(),
+            },
+            { status: 400 }
+          )
+        }
+
+        if (activeAdvertsCount >= 1) {
+          return NextResponse.json(
+            { error: 'Free users can have maximum 1 active published advert at a time' },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
+    // Build update data
+    const updateData: any = {}
+    if (typeof isActive === 'boolean') updateData.isActive = isActive
+    if (typeof isPublished === 'boolean') {
+      updateData.isPublished = isPublished
+      // Set expiresAt when publishing, clear when unpublishing
+      if (isPublished && !advert.expiresAt) {
+        updateData.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      }
+    }
+
+    // Update advert
     const updatedAdvert = await prisma.advert.update({
       where: { id },
-      data: { isActive },
+      data: updateData,
       include: {
         user: {
           select: {
@@ -134,7 +202,7 @@ export async function PUT(
     })
 
     return NextResponse.json({
-      message: `Advert ${isActive ? 'activated' : 'deactivated'} successfully`,
+      message: `Advert updated successfully`,
       advert: updatedAdvert,
     })
 

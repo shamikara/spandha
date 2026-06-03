@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         phone: true,
         email: true,
         isVerified: true,
+        isNicVerified: true,
         isAdmin: true,
         isPremium: true,
         profile: {
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest) {
         phone: user.phone,
         email: user.email,
         isVerified: user.isVerified,
+        isNicVerified: user.isNicVerified,
         isAdmin: user.isAdmin,
         isPremium: user.isPremium,
         profile: user.profile,

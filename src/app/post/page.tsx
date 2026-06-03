@@ -587,7 +587,7 @@ export default function PostAdvertPage() {
     setFormData({ title: '', content: '' })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, isPublished: boolean = true) => {
     e.preventDefault()
     setSaving(true)
     setError('')
@@ -600,17 +600,18 @@ export default function PostAdvertPage() {
          body: JSON.stringify({
            ...formData,
            builderData,
+           isPublished,
          }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess(t('advert.posted'))
+        setSuccess(isPublished ? t('advert.posted') : 'Draft saved successfully')
         resetForm()
         checkProfileAndFetchAdverts()
       } else {
-        setError(data.error || 'Failed to post advert')
+        setError(data.error || 'Failed to save advert')
       }
     } catch {
       setError('Network error. Please try again.')
@@ -695,7 +696,7 @@ export default function PostAdvertPage() {
         )}
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_420px] mb-10">
+          <form className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_420px] mb-10">
             <div className="wedding-card p-6 lg:p-8">
               <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold mb-6">
                 {language === 'si' ? 'විස්තර අපට පවසන්න' : 'Tell us the details'}
@@ -870,11 +871,20 @@ export default function PostAdvertPage() {
                     Regenerate Preview
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={(e) => handleSubmit(e, false)}
+                    disabled={saving}
+                    className="flex-1 rounded-lg bg-amber-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600"
+                  >
+                    {saving ? 'Saving...' : 'Save as Draft'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleSubmit(e, true)}
                     disabled={saving}
                     className="flex-1 wedding-button disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {saving ? t('common.loading') : t('advert.postAdvert')}
+                    {saving ? 'Publishing...' : 'Publish'}
                   </button>
                   <button
                     type="button"

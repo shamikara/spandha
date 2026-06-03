@@ -9,6 +9,7 @@ interface DashboardData {
     phone: string | null
     email: string | null
     isVerified: boolean
+    isNicVerified: boolean
     isPremium: boolean
     profile: {
       firstName: string
@@ -90,7 +91,7 @@ export default function DashboardPage() {
         <div className="wedding-card p-6">
           <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Account status</h2>
           <div className="space-y-3">
-            <StatusRow icon={ShieldCheck} label="Identity" value={data.user.isVerified ? 'Verified' : 'Pending verification'} ok={data.user.isVerified} />
+            <StatusRow icon={ShieldCheck} label="Identity" value={data.user.isNicVerified ? 'Verified' : 'Pending verification'} ok={data.user.isNicVerified} />
             <StatusRow icon={CheckCircle} label="Profile visibility" value={data.user.profile?.isActive ? 'Active' : 'Not active'} ok={Boolean(data.user.profile?.isActive)} />
             <StatusRow icon={CheckCircle} label="Premium" value={data.user.isPremium ? 'Active' : 'Free plan'} ok={data.user.isPremium} />
           </div>

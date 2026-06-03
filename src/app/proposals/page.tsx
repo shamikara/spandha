@@ -13,15 +13,48 @@ export default function ProposalsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
+  
+  // Real session/premium state
+  const [isPremium, setIsPremium] = useState(false)
+
+  // Active tab selection ('female' = Brides, 'male' = Grooms)
+  const [activeTab, setActiveTab] = useState<'female' | 'male'>('female')
+
+  // Temporary filter values before user clicks Search
+  const [tempFilters, setTempFilters] = useState({
+    location: '',
+    minAge: '',
+    maxAge: '',
+  })
+
+  // Applied filter values that trigger API fetches
   const [filters, setFilters] = useState({
-    gender: '',
+    gender: 'female',
     location: '',
     minAge: '',
     maxAge: '',
   })
   
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const { isDark } = useTheme()
+
+  // Fetch current user session to determine premium status
+  useEffect(() => {
+    const checkPremiumStatus = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.isAuthenticated && data.user) {
+            setIsPremium(data.user.isPremium || false)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to verify premium status:', err)
+      }
+    }
+    checkPremiumStatus()
+  }, [])
 
   const fetchProposals = useCallback(async () => {
     try {
@@ -53,17 +86,41 @@ export default function ProposalsPage() {
     fetchProposals()
   }, [fetchProposals])
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
+  // Change gender tab
+  const handleTabChange = (gender: 'female' | 'male') => {
+    setActiveTab(gender)
+    setFilters(prev => ({
+      ...prev,
+      gender,
+    }))
     setPage(1)
   }
 
+  // Handle input changes inside temporary filters
+  const handleTempFilterChange = (key: string, value: string) => {
+    setTempFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  // Copy temporary filters to active filters to trigger a fetch
+  const applyFilters = () => {
+    setFilters(prev => ({
+      ...prev,
+      ...tempFilters,
+    }))
+    setPage(1)
+  }
+
+  // Reset all filters and search input fields
   const clearFilters = () => {
-    setFilters({
-      gender: '',
+    const cleared = {
       location: '',
       minAge: '',
       maxAge: '',
+    }
+    setTempFilters(cleared)
+    setFilters({
+      gender: activeTab,
+      ...cleared,
     })
     setPage(1)
   }
@@ -73,11 +130,11 @@ export default function ProposalsPage() {
   return (
     <div className="min-h-screen bg-transparent pt-24 pb-12">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-semibold tracking-tight text-slate-100"
+          className="text-4xl font-serif font-bold tracking-tight text-slate-100"
         >
           {t('proposals.title')}
         </motion.h1>
@@ -87,12 +144,39 @@ export default function ProposalsPage() {
           transition={{ delay: 0.1 }}
           className="mt-2 text-slate-400"
         >
-          Curated connections tailored to your preferences.
+          {language === 'si' 
+            ? 'ඔබේ රුචි අරුචිකම්වලට ගැලපෙන සත්‍යාපනය කළ විවාහ යෝජනා.' 
+            : 'Curated connections tailored to your preferences.'}
         </motion.p>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Filters */}
+        
+        {/* Bride & Groom Tabs */}
+        <div className="flex space-x-4 mb-8">
+          <button
+            onClick={() => handleTabChange('female')}
+            className={`flex-1 sm:flex-none px-8 py-3.5 rounded-2xl text-sm font-semibold tracking-wide transition-all border ${
+              activeTab === 'female'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white border-pink-500 shadow-[0_4px_20px_rgba(219,39,119,0.35)]'
+                : 'bg-white/[0.02] hover:bg-white/[0.05] text-slate-400 border-white/5'
+            }`}
+          >
+            {language === 'si' ? 'මනාලියන් (Brides)' : 'Brides'}
+          </button>
+          <button
+            onClick={() => handleTabChange('male')}
+            className={`flex-1 sm:flex-none px-8 py-3.5 rounded-2xl text-sm font-semibold tracking-wide transition-all border ${
+              activeTab === 'male'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white border-indigo-500 shadow-[0_4px_20px_rgba(79,70,229,0.35)]'
+                : 'bg-white/[0.02] hover:bg-white/[0.05] text-slate-400 border-white/5'
+            }`}
+          >
+            {language === 'si' ? 'මනාලයන් (Grooms)' : 'Grooms'}
+          </button>
+        </div>
+
+        {/* Filter Panel */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -101,36 +185,22 @@ export default function ProposalsPage() {
         >
           <div className="flex items-center justify-between mb-6">
              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-               {t('common.filter')} Parameters
+               {language === 'si' ? 'පෙරහන් මිනුම්' : 'Filter Parameters'}
              </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
-                {t('profile.gender')}
-              </label>
-              <select
-                value={filters.gender}
-                onChange={(e) => handleFilterChange('gender', e.target.value)}
-                className={inputClasses}
-              >
-                <option value="" className="bg-zinc-900">{t('common.select')}</option>
-                <option value="male" className="bg-zinc-900">{t('profile.male')}</option>
-                <option value="female" className="bg-zinc-900">{t('profile.female')}</option>
-              </select>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wide">
                 {t('profile.location')}
               </label>
               <input
                 type="text"
-                value={filters.location}
-                onChange={(e) => handleFilterChange('location', e.target.value)}
-                placeholder="e.g., Colombo"
+                value={tempFilters.location}
+                onChange={(e) => handleTempFilterChange('location', e.target.value)}
+                placeholder={language === 'si' ? 'උදා: කොළඹ' : 'e.g., Colombo'}
                 className={inputClasses}
+                onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
               />
             </div>
 
@@ -140,12 +210,13 @@ export default function ProposalsPage() {
               </label>
               <input
                 type="number"
-                value={filters.minAge}
-                onChange={(e) => handleFilterChange('minAge', e.target.value)}
+                value={tempFilters.minAge}
+                onChange={(e) => handleTempFilterChange('minAge', e.target.value)}
                 placeholder="18"
                 min="18"
                 max="100"
                 className={inputClasses}
+                onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
               />
             </div>
 
@@ -155,19 +226,26 @@ export default function ProposalsPage() {
               </label>
               <input
                 type="number"
-                value={filters.maxAge}
-                onChange={(e) => handleFilterChange('maxAge', e.target.value)}
+                value={tempFilters.maxAge}
+                onChange={(e) => handleTempFilterChange('maxAge', e.target.value)}
                 placeholder="50"
                 min="18"
                 max="100"
                 className={inputClasses}
+                onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
               />
             </div>
 
-            <div className="flex items-end">
+            <div className="flex gap-3 items-end">
+              <button
+                onClick={applyFilters}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-500/50"
+              >
+                {language === 'si' ? 'සොයන්න (Search)' : 'Search'}
+              </button>
               <button
                 onClick={clearFilters}
-                className="w-full bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10"
+                className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10"
               >
                 {t('common.clear')}
               </button>
@@ -206,7 +284,12 @@ export default function ProposalsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {proposals.map((proposal, index) => (
-              <ProposalCard key={proposal.id} proposal={proposal} index={index} />
+              <ProposalCard 
+                key={proposal.id} 
+                proposal={proposal} 
+                index={index} 
+                isCurrentUserPremium={isPremium} 
+              />
             ))}
           </div>
         )}
@@ -215,13 +298,18 @@ export default function ProposalsPage() {
   )
 }
 
-function ProposalCard({ proposal, index }: { proposal: Profile, index: number }) {
+function ProposalCard({ 
+  proposal, 
+  index, 
+  isCurrentUserPremium 
+}: { 
+  proposal: Profile
+  index: number 
+  isCurrentUserPremium: boolean
+}) {
   const { t } = useTranslation()
   const [interested, setInterested] = useState(false)
   const [loading, setLoading] = useState(false)
-
-  // Demo: Set to true if the current logged-in user is premium
-  const isCurrentUserPremium = false
 
   const handleSendInterest = async () => {
     setLoading(true)
@@ -253,7 +341,7 @@ function ProposalCard({ proposal, index }: { proposal: Profile, index: number })
         <div className="relative">
           <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/30 border border-white/10 flex items-center justify-center text-slate-200 font-semibold tracking-wider text-lg overflow-hidden transition-all duration-500 ${!isCurrentUserPremium ? 'blur-md opacity-60 scale-95' : ''}`}>
             {proposal.avatar ? (
-              <Image src={proposal.avatar} alt="avatar" width={56} height={56} className="w-full h-full object-cover" />
+              <img src={proposal.avatar} alt="avatar" className="w-full h-full object-cover" />
             ) : (
               `${proposal.firstName[0]}${proposal.lastName[0]}`
             )}

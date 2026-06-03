@@ -19,7 +19,7 @@ export async function PATCH(
     const body = await request.json()
 
     // Ensure we only update allowed fields
-    const allowedFields = ['isVerified', 'isPremium', 'isAdmin']
+    const allowedFields = ['isNicVerified', 'isPremium', 'isAdmin']
     const updateData: any = {}
     
     for (const field of allowedFields) {
