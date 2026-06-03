@@ -9,10 +9,12 @@ import type { ProposalsResponse, Profile } from '@/types'
 import { motion } from 'framer-motion'
 
 export default function ProposalsPage() {
+  const [premiumAdverts, setPremiumAdverts] = useState<any[]>([])
   const [proposals, setProposals] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   
   // Real session/premium state
   const [isPremium, setIsPremium] = useState(false)
@@ -59,6 +61,15 @@ export default function ProposalsPage() {
   const fetchProposals = useCallback(async () => {
     try {
       setLoading(true)
+      
+      // Fetch premium adverts
+      const premiumResponse = await fetch('/api/premium-adverts?limit=8')
+      if (premiumResponse.ok) {
+        const premiumData = await premiumResponse.json()
+        setPremiumAdverts(premiumData.adverts || [])
+      }
+
+      // Fetch regular proposals with pagination
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '12',
@@ -72,6 +83,7 @@ export default function ProposalsPage() {
 
       if (response.ok) {
         setProposals(data.proposals)
+        setTotalPages(data.pagination.totalPages)
       } else {
         setError(data.error || 'Failed to fetch proposals')
       }
@@ -264,6 +276,26 @@ export default function ProposalsPage() {
           </motion.div>
         )}
 
+        {/* Premium Members Carousel */}
+        {!loading && premiumAdverts.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-12"
+          >
+            <h2 className="text-2xl font-serif font-bold text-slate-100 mb-6 flex items-center gap-2">
+              <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-transparent bg-clip-text">Premium Adverts</span>
+              <span className="text-xs bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-2 py-1 rounded-full">Featured</span>
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {premiumAdverts.slice(0, 8).map((advert, index) => (
+                <PremiumAdvertCard key={advert.id} advert={advert} index={index} />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Proposals Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -282,19 +314,83 @@ export default function ProposalsPage() {
             </p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {proposals.map((proposal, index) => (
-              <ProposalCard 
-                key={proposal.id} 
-                proposal={proposal} 
-                index={index} 
-                isCurrentUserPremium={isPremium} 
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {proposals.map((proposal, index) => (
+                <ProposalCard 
+                  key={proposal.id} 
+                  proposal={proposal} 
+                  index={index} 
+                  isCurrentUserPremium={isPremium} 
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-8">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                <span className="text-slate-400">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
+  )
+}
+
+function PremiumAdvertCard({ advert, index }: { advert: any; index: number }) {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="group relative p-4 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 backdrop-blur-xl hover:border-yellow-500/40 transition-all duration-300"
+    >
+      <div className="relative w-16 h-16 mx-auto mb-3">
+        <div className="w-full h-full rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-2 border-yellow-400 flex items-center justify-center text-white font-bold text-xl">
+          {advert.user.profile.avatar ? (
+            <img src={advert.user.profile.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
+          ) : (
+            `${advert.user.profile.firstName[0]}${advert.user.profile.lastName[0]}`
+          )}
+        </div>
+        <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">
+          Premium
+        </div>
+      </div>
+      <h3 className="text-sm font-semibold text-slate-100 text-center mb-1 line-clamp-1">
+        {advert.title}
+      </h3>
+      <p className="text-xs text-slate-400 text-center mb-3 line-clamp-2">
+        {advert.content}
+      </p>
+      <p className="text-[10px] text-slate-500 text-center mb-3">
+        {advert.user.profile.firstName} {advert.user.profile.lastName} • {advert.user.profile.age} yrs
+      </p>
+      <button
+        onClick={() => window.location.href = `/proposals/${advert.user.profile.firstName}-${advert.user.profile.lastName}`}
+        className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-yellow-900 text-xs font-semibold py-2 px-3 rounded-lg transition-all"
+      >
+        View Advert
+      </button>
+    </motion.div>
   )
 }
 

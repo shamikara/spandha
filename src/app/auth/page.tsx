@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, CheckCircle, ShieldCheck } from 'lucide-react'
 import { useToast } from '@/components/ToastProvider'
 import { supabase } from '@/lib/supabase'
+import { SRI_LANKA_DISTRICTS } from '@/lib/constants'
 
 type Step = 'phone' | 'otp' | 'personal' | 'verification'
 type AuthMode = 'login' | 'register'
@@ -483,7 +484,7 @@ export default function AuthPage() {
                 onSubmit={handlePersonalSubmit}
                 className="space-y-5"
               >
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClasses}>{t('profile.firstName')}</label>
                     <input type="text" required value={firstName} onChange={e => setFirstName(e.target.value)} className={inputClasses} />
@@ -510,14 +511,17 @@ export default function AuthPage() {
 
                 <div>
                   <label className={labelClasses}>{t('profile.location')}</label>
-                  <input
-                    type="text"
+                  <select
                     required
                     value={location}
                     onChange={e => setLocation(e.target.value)}
-                    placeholder={language === 'si' ? 'උදා: කොළඹ, මහනුවර, ගාල්ල' : 'e.g., Colombo, Kandy, Galle'}
                     className={inputClasses}
-                  />
+                  >
+                    <option value="" className="bg-zinc-900">{language === 'si' ? 'දිස්ත්‍රික්කය තෝරන්න' : 'Select District'}</option>
+                    {SRI_LANKA_DISTRICTS.map(district => (
+                      <option key={district} value={district} className="bg-zinc-900">{district}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <button

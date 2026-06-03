@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Hero from '@/components/Hero'
 import Features from '@/components/Features'
+import PremiumAdverts from '@/components/PremiumAdverts'
 import { Stats, Testimonials } from '@/components/LazyComponents'
 import CTA from '@/components/CTA'
 
@@ -14,6 +15,7 @@ export default function Home() {
     <main className="min-h-screen">
       <Hero />
       <Features />
+      <PremiumAdverts />
       <Stats />
       <Testimonials />
       <CTA />

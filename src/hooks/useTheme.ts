@@ -3,19 +3,22 @@
 import { useState, useEffect } from 'react'
 
 export function useTheme() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('spandha-theme') as 'light' | 'dark'
+    setMounted(true)
+    const savedTheme = localStorage.getItem('spandha-theme') as 'light' | 'dark' | null
     if (savedTheme) {
       setTheme(savedTheme)
     } else {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setTheme(prefersDark ? 'dark' : 'light')
+      setTheme('dark')
     }
   }, [])
 
   useEffect(() => {
+    if (!mounted) return
     const root = document.documentElement
     if (theme === 'dark') {
       root.classList.add('dark')
@@ -23,7 +26,7 @@ export function useTheme() {
       root.classList.remove('dark')
     }
     localStorage.setItem('spandha-theme', theme)
-  }, [theme])
+  }, [theme, mounted])
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light')

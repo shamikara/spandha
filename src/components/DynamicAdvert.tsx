@@ -30,6 +30,8 @@ export default function DynamicAdvert({ key }: { key: string }) {
         if (res.ok) {
           const data = await res.json()
           setAdvert(data.content)
+        } else {
+          console.error('Failed to fetch advert:', res.status, res.statusText)
         }
       } catch (error) {
         console.error('Error fetching advert:', error)

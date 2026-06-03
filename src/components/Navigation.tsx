@@ -21,7 +21,7 @@ export default function Navigation() {
 
   useEffect(() => {
     checkAuth()
-  }, [])
+  }, [pathname])
 
   const checkAuth = async () => {
     try {

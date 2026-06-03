@@ -27,6 +27,7 @@ interface Proposal {
 
 export default function ProposalDetailPage({ params }: { params: { id: string } }) {
   const [proposal, setProposal] = useState<Proposal | null>(null)
+  const [similarProposals, setSimilarProposals] = useState<Proposal[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -62,6 +63,15 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
       if (response.ok) {
         const data = await response.json()
         setProposal(data.proposal)
+
+        // Fetch similar proposals based on gender and location
+        if (data.proposal) {
+          const similarResponse = await fetch(`/api/proposals?gender=${data.proposal.gender}&location=${data.proposal.location}&limit=3`)
+          if (similarResponse.ok) {
+            const similarData = await similarResponse.json()
+            setSimilarProposals(similarData.proposals.filter((p: Proposal) => p.id !== params.id).slice(0, 3))
+          }
+        }
       } else {
         setError('Proposal not found')
       }
@@ -318,35 +328,46 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
         </div>
 
         {/* Similar Profiles */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold mb-6">
-            Similar Profiles
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Mock similar profiles - in production, fetch from API */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="wedding-card p-6 hover:scale-105 transition-transform duration-300">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-sm">
-                    P{i}
+        {similarProposals.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-serif font-bold text-wedding-maroon dark:text-wedding-gold mb-6">
+              Similar Profiles
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {similarProposals.map((similarProposal) => (
+                <div key={similarProposal.id} className="wedding-card p-6 hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center space-x-3 mb-3">
+                    {similarProposal.avatar ? (
+                      <img
+                        src={similarProposal.avatar}
+                        alt={`${similarProposal.firstName} ${similarProposal.lastName}`}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-wedding-gold"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-wedding-gold rounded-full flex items-center justify-center text-wedding-maroon font-bold text-sm">
+                        {similarProposal.firstName[0]}{similarProposal.lastName[0]}
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                        {similarProposal.firstName} {similarProposal.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {similarProposal.age} years, {similarProposal.location}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Person {i}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {25 + i * 2} years, Colombo
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => router.push(`/proposals/${similarProposal.id}`)}
+                    className="w-full text-center wedding-button py-2"
+                  >
+                    View Profile
+                  </button>
                 </div>
-                <button
-                  onClick={() => router.push(`/proposals/${i}`)}
-                  className="w-full text-center wedding-button py-2"
-                >
-                  View Profile
-                </button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

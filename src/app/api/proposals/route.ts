@@ -41,8 +41,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ proposals: [], pagination: { page, limit, total: 0, totalPages: 0 } })
     }
 
+    // Filter by premium status if requested
+    const premium = searchParams.get('premium')
+    if (premium === 'true') {
+      where.user = {
+        ...where.user,
+        isPremium: true,
+      }
+    }
+
     if (gender) {
-      where.gender = gender
+      where.gender = gender.toUpperCase() as any
     }
 
     if (location) {

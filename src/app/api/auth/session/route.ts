@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
+import { verifyToken } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const decoded = verifyToken(request);
 
-    if (!token) {
+    if (!decoded) {
       return NextResponse.json({ isAuthenticated: false, user: null });
     }
-
-    // Verify JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      phone?: string;
-      email?: string;
-    };
 
     // Fetch user from database
     const user = await prisma.user.findUnique({

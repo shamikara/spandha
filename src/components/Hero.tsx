@@ -71,11 +71,6 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        {/* Language Switcher */}
-        <div className="flex justify-end mb-4">
-          <LanguageSwitcher />
-        </div>
-
         {/* Hero Logo */}
         <div className="mb-8 animate-fade-in flex justify-center">
           <Image
