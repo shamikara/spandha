@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
-import { Camera, ShieldCheck, Upload, CheckCircle } from 'lucide-react'
+import { Camera, ShieldCheck, Upload, CheckCircle, Save, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ToastProvider'
 
@@ -543,16 +543,10 @@ export default function ProfilePage() {
                       })
                     }
                   }}
-                  className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
                 >
+                  <X className="w-4 h-4" />
                   {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex-1 wedding-button disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {saving ? t('common.loading') : t('profile.save')}
                 </button>
               </div>
             </form>
@@ -770,9 +764,14 @@ function ProfileForm({
       <button
         type="submit"
         disabled={saving}
-        className="wedding-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        className="wedding-button w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        {saving ? t('common.loading') : (formData.firstName ? t('profile.save') : (language === 'si' ? 'පැතිකඩ සාදන්න' : 'Create Profile'))}
+        {saving ? t('common.loading') : (
+          <>
+            <Save className="w-4 h-4" />
+            {formData.firstName ? t('profile.save') : (language === 'si' ? 'පැතිකඩ සාදන්න' : 'Create Profile')}
+          </>
+        )}
       </button>
     </>
   )

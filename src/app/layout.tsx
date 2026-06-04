@@ -59,9 +59,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <Galaxy />
         <ToastProvider>
-          <div className="min-h-screen bg-wedding-cream dark:bg-wedding-dark transition-colors duration-300 relative flex flex-col">
-            <Galaxy />
+          <div className="min-h-screen bg-transparent transition-colors duration-300 relative flex flex-col">
             <Navigation />
             <main className="flex-1">{children}</main>
             <Footer />

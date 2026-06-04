@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     const filter = searchParams.get('filter') || 'all'
+    const limit = parseInt(searchParams.get('limit') || '50')
 
     // Build the query
     let whereClause: any = {}
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-      take: 50, // Limit for now, can implement cursor pagination later
+      take: limit,
     })
 
     return NextResponse.json({ users })

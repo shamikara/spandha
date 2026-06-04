@@ -126,6 +126,12 @@ export default function AuthPage() {
           // New user or no profile, proceed to registration
           setAuthMode('register')
           setStep('personal')
+          toast.success(
+            language === 'si' 
+              ? 'OTP සාර්ථකවිය! කරුණාකර ඔබේ පැතිකඩ සම්පූර්ණ කරන්න.' 
+              : 'OTP verified successfully! Please complete your profile.',
+            t('common.success')
+          )
         }
       } else {
         const message = data.error || t('auth.invalidOtp')

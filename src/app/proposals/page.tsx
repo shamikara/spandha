@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/useTheme'
 import SkeletonCard from '@/components/SkeletonCard'
 import type { ProposalsResponse, Profile } from '@/types'
 import { motion } from 'framer-motion'
+import { User, Search, X, Filter, Heart, Shield } from 'lucide-react'
 
 export default function ProposalsPage() {
   const [premiumAdverts, setPremiumAdverts] = useState<any[]>([])
@@ -168,22 +169,24 @@ export default function ProposalsPage() {
         <div className="flex space-x-4 mb-8">
           <button
             onClick={() => handleTabChange('female')}
-            className={`flex-1 sm:flex-none px-8 py-3.5 rounded-2xl text-sm font-semibold tracking-wide transition-all border ${
+            className={`flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-sm font-semibold tracking-wide transition-all border flex items-center gap-2 ${
               activeTab === 'female'
                 ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white border-pink-500 shadow-[0_4px_20px_rgba(219,39,119,0.35)]'
                 : 'bg-white/[0.02] hover:bg-white/[0.05] text-slate-400 border-white/5'
             }`}
           >
+            <Heart className="w-4 h-4" />
             {language === 'si' ? 'මනාලියන් (Brides)' : 'Brides'}
           </button>
           <button
             onClick={() => handleTabChange('male')}
-            className={`flex-1 sm:flex-none px-8 py-3.5 rounded-2xl text-sm font-semibold tracking-wide transition-all border ${
+            className={`flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-sm font-semibold tracking-wide transition-all border flex items-center gap-2 ${
               activeTab === 'male'
                 ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white border-indigo-500 shadow-[0_4px_20px_rgba(79,70,229,0.35)]'
                 : 'bg-white/[0.02] hover:bg-white/[0.05] text-slate-400 border-white/5'
             }`}
           >
+            <Shield className="w-4 h-4" />
             {language === 'si' ? 'මනාලයන් (Grooms)' : 'Grooms'}
           </button>
         </div>
@@ -251,14 +254,16 @@ export default function ProposalsPage() {
             <div className="flex gap-3 items-end">
               <button
                 onClick={applyFilters}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-500/50"
+                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-500/50 flex items-center justify-center gap-2"
               >
+                <Search className="w-4 h-4" />
                 {language === 'si' ? 'සොයන්න (Search)' : 'Search'}
               </button>
               <button
                 onClick={clearFilters}
-                className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10"
+                className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10 flex items-center justify-center gap-2"
               >
+                <X className="w-4 h-4" />
                 {t('common.clear')}
               </button>
             </div>
@@ -486,8 +491,12 @@ function ProposalCard({
       <div className="flex gap-3 mt-auto">
         <button
           onClick={() => window.location.href = `/proposals/${proposal.id}`}
-          className="flex-1 bg-white/5 hover:bg-white/10 text-slate-200 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10"
+          className="flex-1 bg-white/5 hover:bg-white/10 text-slate-200 text-sm font-medium py-2.5 px-4 rounded-xl transition-all border border-white/5 hover:border-white/10 flex items-center justify-center gap-2"
         >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
           {t('proposals.viewProfile')}
         </button>
         

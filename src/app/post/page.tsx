@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
+import { Save, Send, X, RefreshCw } from 'lucide-react'
 
 interface Advert {
   id: string
@@ -868,29 +869,41 @@ export default function PostAdvertPage() {
                     onClick={regenerateAdvert}
                     className="flex-1 rounded-lg bg-white px-4 py-2 font-medium text-wedding-maroon shadow-sm transition-colors hover:bg-wedding-cream dark:bg-gray-700 dark:text-wedding-gold dark:hover:bg-gray-600"
                   >
+                    <RefreshCw className="w-4 h-4" />
                     Regenerate Preview
                   </button>
                   <button
                     type="button"
                     onClick={(e) => handleSubmit(e, false)}
                     disabled={saving}
-                    className="flex-1 rounded-lg bg-amber-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600"
+                    className="flex-1 rounded-lg bg-amber-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600 flex items-center justify-center gap-2"
                   >
-                    {saving ? 'Saving...' : 'Save as Draft'}
+                    {saving ? 'Saving...' : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Save as Draft
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={(e) => handleSubmit(e, true)}
                     disabled={saving}
-                    className="flex-1 wedding-button disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 wedding-button disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    {saving ? 'Publishing...' : 'Publish'}
+                    {saving ? 'Publishing...' : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Publish
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="flex-1 rounded-lg bg-gray-200 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                    className="flex-1 rounded-lg bg-gray-200 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 flex items-center justify-center gap-2"
                   >
+                    <X className="w-4 h-4" />
                     {t('common.cancel')}
                   </button>
                 </div>

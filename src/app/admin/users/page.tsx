@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
     return () => clearTimeout(delayDebounceFn)
   }, [fetchUsers])
 
-  const toggleStatus = async (userId: string, field: 'isNicVerified' | 'isPremium' | 'isAdmin', currentValue: boolean) => {
+  const toggleStatus = async (userId: string, field: 'isNicVerified' | 'isPremium', currentValue: boolean) => {
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: 'PATCH',
@@ -127,7 +127,6 @@ export default function AdminUsersPage() {
           <option value="verified" className="bg-zinc-900">Verified</option>
           <option value="unverified" className="bg-zinc-900">Unverified</option>
           <option value="premium" className="bg-zinc-900">Premium</option>
-          <option value="admin" className="bg-zinc-900">Admins</option>
         </select>
       </div>
 
@@ -172,9 +171,6 @@ export default function AdminUsersPage() {
                           <div className="font-medium text-slate-200">
                             {user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'Profile Incomplete'}
                           </div>
-                          {user.isAdmin && (
-                             <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded uppercase">Admin</span>
-                          )}
                         </div>
                       </div>
                     </td>
@@ -440,16 +436,6 @@ export default function AdminUsersPage() {
                       }`}
                     >
                       {selectedUser.isPremium ? 'Remove Premium' : 'Grant Premium'}
-                    </button>
-                    <button
-                      onClick={() => toggleStatus(selectedUser.id, 'isAdmin', selectedUser.isAdmin)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        selectedUser.isAdmin
-                          ? 'bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30'
-                          : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                      }`}
-                    >
-                      {selectedUser.isAdmin ? 'Remove Admin' : 'Grant Admin'}
                     </button>
                   </div>
                   <button

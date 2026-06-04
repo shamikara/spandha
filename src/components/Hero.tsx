@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Galaxy from './Galaxy'
 import { ArrowRight } from 'lucide-react'
 import LanguageSwitcher, { Locale } from './LanguageSwitcher'
 import type { HeroContent } from '@/lib/content-blocks'
@@ -57,10 +56,9 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <Galaxy />
       {/* Background Pattern */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 opacity-60"
         style={{
           backgroundImage: `url('/images/hero-bg.png')`,
         }}
@@ -73,25 +71,28 @@ export default function Hero() {
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         {/* Hero Logo */}
         <div className="mb-8 animate-fade-in flex justify-center">
-          <Image
-            src="/images/hero-logo.webp"
-            alt="Spandha"
-            width={300}
-            height={128}
-            className="h-24 md:h-32 w-auto"
-            priority
-          />
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-rose blur-2xl opacity-50 rounded-full"></div>
+            <Image
+              src="/images/hero-logo.webp"
+              alt="Spandha"
+              width={300}
+              height={128}
+              className="h-24 md:h-32 w-auto relative z-10"
+              priority
+            />
+          </div>
         </div>
 
         <div className="animate-fade-in">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 drop-shadow-2xl">
             {content.title}
-            <span className="block text-wedding-gold mt-2">
+            <span className="block bg-gradient-to-r from-wedding-gold via-wedding-blush to-wedding-rose bg-clip-text text-transparent mt-2">
               {content.subtitle}
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/95 mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
             Sri Lanka&apos;s most trusted matrimonial platform. Connect with verified profiles,
             find meaningful relationships, and start your journey to marriage.
           </p>
@@ -99,7 +100,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link
               href="/auth"
-              className="wedding-button text-lg px-8 py-4 inline-flex items-center justify-center"
+              className="wedding-button wedding-shimmer wedding-glow text-lg px-8 py-4 inline-flex items-center justify-center"
             >
               {content.cta}
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -107,7 +108,7 @@ export default function Hero() {
 
             <Link
               href="/proposals"
-              className="bg-white/10 hover:bg-white/20 text-white border-2 border-white hover:bg-white hover:text-wedding-maroon font-medium py-4 px-8 rounded-lg transition-all duration-200 text-lg"
+              className="bg-white/10 hover:bg-white/20 text-white border-2 border-wedding-gold hover:bg-wedding-gold hover:text-wedding-dark font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 text-lg shadow-lg hover:shadow-xl"
             >
               Browse Profiles
             </Link>
@@ -116,24 +117,24 @@ export default function Hero() {
           {/* Trust Indicators */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
             <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              <div className="text-3xl font-bold text-wedding-gold mb-2">
+              <div className="text-3xl font-bold bg-gradient-to-r from-wedding-gold to-wedding-gold-light bg-clip-text text-transparent mb-2">
                 10,000+
               </div>
-              <div className="text-white/80">Verified Profiles</div>
+              <div className="text-white/90 font-medium">Verified Profiles</div>
             </div>
 
             <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <div className="text-3xl font-bold text-wedding-gold mb-2">
+              <div className="text-3xl font-bold bg-gradient-to-r from-wedding-blush to-wedding-rose bg-clip-text text-transparent mb-2">
                 500+
               </div>
-              <div className="text-white/80">Success Stories</div>
+              <div className="text-white/90 font-medium">Success Stories</div>
             </div>
 
             <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <div className="text-3xl font-bold text-wedding-gold mb-2">
+              <div className="text-3xl font-bold bg-gradient-to-r from-wedding-rose to-wedding-maroon bg-clip-text text-transparent mb-2">
                 98%
               </div>
-              <div className="text-white/80">Match Success</div>
+              <div className="text-white/90 font-medium">Match Success</div>
             </div>
           </div>
         </div>
