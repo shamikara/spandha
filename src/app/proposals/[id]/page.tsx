@@ -8,6 +8,7 @@ import SkeletonCard from '@/components/SkeletonCard'
 
 interface Proposal {
   id: string
+  userId: string
   firstName: string
   lastName: string
   age: number
@@ -93,9 +94,12 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
       return
     }
 
-    // Check verification status
+    if (!proposal) {
+      return
+    }
+
     if (!isNicVerified) {
-      setError('You must be verified to send interests. Please upload your NIC documents in your profile.')
+      setError('Upload your NIC in profile and wait for admin approval before sending interests.')
       return
     }
 
@@ -104,7 +108,7 @@ export default function ProposalDetailPage({ params }: { params: { id: string } 
       const response = await fetch('/api/interests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toUserId: params.id }),
+        body: JSON.stringify({ toUserId: proposal.userId }),
       })
 
       if (response.ok) {

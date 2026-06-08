@@ -36,7 +36,8 @@ export default function DashboardSettingsPage() {
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <SettingDetail label="Phone" value={data?.user.phone || 'Not added'} />
           <SettingDetail label="Email" value={data?.user.email || 'Not added'} />
-          <SettingDetail label="Verification" value={data?.user.isNicVerified ? 'Verified' : 'Pending'} />
+          <SettingDetail label="Login (OTP)" value={data?.user.isVerified ? 'Signed in — no password used' : 'Not signed in'} />
+          <SettingDetail label="Identity (NIC)" value={data?.user.isNicVerified ? 'Verified by admin' : 'Pending admin review'} />
         </div>
         <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
           Contact changes should be re-verified with OTP. That edit flow can be added here once account recovery rules are finalized.

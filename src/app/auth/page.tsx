@@ -392,6 +392,8 @@ export default function AuthPage() {
                   </button>
                 </div>
 
+                <p className="text-sm text-slate-500 mb-4">{t('auth.noPasswordHint')}</p>
+
                 <div>
                   <label className={labelClasses}>
                     {t('auth.emailOrPhone')}

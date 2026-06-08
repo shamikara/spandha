@@ -110,7 +110,8 @@ export default function DashboardProfilePage() {
             <Detail label="Job" value={profile.job || 'Not added'} />
             <Detail label="Education" value={profile.education || 'Not added'} />
             <Detail label="Phone" value={profile.user?.phone || 'Not added'} />
-            <Detail label="Verification" value={profile.user?.isNicVerified ? 'Verified' : 'Pending'} />
+            <Detail label="Login (OTP)" value={profile.user?.isVerified ? 'Signed in' : 'Not signed in'} />
+            <Detail label="Identity (NIC)" value={profile.user?.isNicVerified ? 'Verified by admin' : 'Pending admin review'} />
           </div>
 
           <div className="mt-6">

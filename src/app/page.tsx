@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import JsonLd from '@/components/JsonLd'
 import Hero from '@/components/Hero'
 import Features from '@/components/Features'
 import PremiumAdverts from '@/components/PremiumAdverts'
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main className="min-h-screen">
+      <JsonLd />
       <Hero />
       <Features />
       <PremiumAdverts />

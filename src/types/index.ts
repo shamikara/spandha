@@ -6,7 +6,9 @@ export interface User {
   id: string
   phone: string | null
   email: string | null
+  /** True after OTP login succeeds (passwordless sign-in; no separate password). */
   isVerified: boolean
+  /** Set true only after admin approves uploaded NIC */
   isNicVerified: boolean
   isAdmin: boolean
   createdAt: Date

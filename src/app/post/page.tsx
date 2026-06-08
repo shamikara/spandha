@@ -28,7 +28,7 @@ interface UserProfile {
   caste?: string
   motherTongue?: string
   description?: string
-  isVerified?: boolean
+  isNicVerified?: boolean
   isPremium?: boolean
   isAdmin?: boolean
 }
@@ -497,7 +497,7 @@ export default function PostAdvertPage() {
         const profileData = await profileResponse.json()
         setUserProfile({
           ...profileData.profile,
-          isVerified: profileData.profile.user?.isVerified || false,
+          isNicVerified: profileData.profile.user?.isNicVerified || false,
           isPremium: profileData.profile.user?.isPremium || false,
           isAdmin: profileData.profile.user?.isAdmin || false,
         })
@@ -530,9 +530,8 @@ export default function PostAdvertPage() {
       return
     }
 
-    // Check verification status
-    if (!userProfile?.isVerified) {
-      setError('You must be verified to post adverts. Please upload your NIC documents in your profile.')
+    if (!userProfile?.isNicVerified) {
+      setError('You must verify your NIC before posting adverts. Upload your NIC documents in your profile and wait for admin approval.')
       return
     }
 

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get or create user by the single login identifier.
+    // OTP is the login credential (passwordless). Success sets `isVerified` and issues the session.
     const existingUser = await prisma.user.findFirst({
       where: parsed.phone ? { phone: parsed.phone } : { email: parsed.email as string },
       include: { profile: true },

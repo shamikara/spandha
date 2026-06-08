@@ -1,10 +1,9 @@
 /**
- * Shared OTP storage module.
- * 
- * In development: Uses in-memory Map (single process).
- * In production: Should be replaced with Redis (Upstash) for multi-instance support.
- * 
- * TODO: Phase 4.3 — Migrate to Redis/Upstash
+ * OTP storage for passwordless login.
+ * The OTP is the user's login credential (no separate password).
+ *
+ * In development: in-memory Map (single process).
+ * In production: use Redis/Upstash for multi-instance support.
  */
 
 interface OtpRecord {

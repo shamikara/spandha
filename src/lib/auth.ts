@@ -6,6 +6,7 @@ export interface AuthUser {
   userId: string
   phone: string | null
   email?: string | null
+  /** Set when OTP login succeeds — confirms phone/email ownership (no password in this app). */
   isVerified: boolean
   isAdmin: boolean
 }

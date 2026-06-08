@@ -2,9 +2,9 @@ import { EmailLayout } from './layouts/EmailLayout'
 
 export function OtpEmail(otp: string): string {
 return EmailLayout({
-title: 'Verify Your Login',
+title: 'Your Spandha login code',
 content: ` <p style="color:#4b5563;line-height:1.6;">
-We received a request to access your Spandha account. </p>
+Use this code to sign in to Spandha. There is no password — this code is your login credential. </p>
 
   <div style="margin:32px 0;text-align:center;">
     <div style="
@@ -23,7 +23,7 @@ We received a request to access your Spandha account. </p>
   </div>
 
   <p style="color:#4b5563;">
-    This verification code expires in <strong>10 minutes</strong>.
+    This login code expires in <strong>10 minutes</strong>. Do not share it with anyone.
   </p>
 `,
 

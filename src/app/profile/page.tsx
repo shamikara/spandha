@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from '@/hooks/useTheme'
-import { Camera, ShieldCheck, Upload, CheckCircle, Save, X } from 'lucide-react'
+import { Camera, ShieldCheck, Upload, CheckCircle, Save, X, Clock } from 'lucide-react'
+import { loginStatusLabel, nicVerificationLabel } from '@/lib/verification'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ToastProvider'
 
@@ -32,6 +33,8 @@ interface Profile {
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [accountVerified, setAccountVerified] = useState(false)
+  const [nicVerified, setNicVerified] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -98,6 +101,8 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json()
         setProfile(data.profile)
+        setAccountVerified(data.profile.user?.isVerified || false)
+        setNicVerified(data.profile.user?.isNicVerified || false)
         setFormData({
           firstName: data.profile.firstName || '',
           lastName: data.profile.lastName || '',
@@ -304,30 +309,35 @@ export default function ProfilePage() {
                   <ShieldCheck className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   <h3 className="font-semibold text-indigo-900 dark:text-indigo-100">Verification Status</h3>
                 </div>
-                {profile.nicFront && profile.nicBack ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="text-sm">NIC documents uploaded. Awaiting admin verification.</span>
+                <div className="space-y-3 text-sm">
+                  <div className={`flex items-center gap-2 ${accountVerified ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    {accountVerified ? <CheckCircle className="w-5 h-5 shrink-0" /> : <Clock className="w-5 h-5 shrink-0" />}
+                    <span>{loginStatusLabel(accountVerified)}</span>
+                  </div>
+                  <div className={`flex items-center gap-2 ${nicVerified ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    {nicVerified ? <CheckCircle className="w-5 h-5 shrink-0" /> : <Clock className="w-5 h-5 shrink-0" />}
+                    <span>{nicVerificationLabel({ isVerified: accountVerified, isNicVerified: nicVerified }, profile)}</span>
+                  </div>
+                </div>
+                {profile.nicFront && profile.nicBack && (
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">NIC Front</p>
+                      <img src={profile.nicFront} alt="NIC Front" className="w-full h-32 object-cover rounded" />
                     </div>
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">NIC Front</p>
-                        <img src={profile.nicFront} alt="NIC Front" className="w-full h-32 object-cover rounded" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">NIC Back</p>
-                        <img src={profile.nicBack} alt="NIC Back" className="w-full h-32 object-cover rounded" />
-                      </div>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">NIC Back</p>
+                      <img src={profile.nicBack} alt="NIC Back" className="w-full h-32 object-cover rounded" />
                     </div>
                   </div>
-                ) : (
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <p className="mb-2">Upload your NIC documents to unlock all features:</p>
+                )}
+                {!nicVerified && (
+                  <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="mb-2">After admin approves your NIC you can:</p>
                     <ul className="list-disc list-inside space-y-1 text-xs">
                       <li>Send interests to other profiles</li>
                       <li>Post adverts</li>
-                      <li>View full profile details</li>
+                      <li>Appear in public proposal listings</li>
                     </ul>
                   </div>
                 )}

@@ -3,7 +3,9 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { Gender } from '@prisma/client'
 import { verifyToken } from '@/lib/auth'
+import { hasNicDocuments } from '@/lib/verification'
 import { emailService } from '@/lib/services/notification'
+import { notifyUser } from '@/lib/services/notifications'
 
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -32,6 +34,36 @@ function toProfileData(validatedData: z.infer<typeof profileSchema>) {
     ...validatedData,
     gender: toGender(validatedData.gender),
   }
+}
+
+async function notifyAdminsNicReview(fullName: string) {
+  const admins = await prisma.user.findMany({
+    where: { isAdmin: true },
+    select: { id: true },
+  })
+
+  await Promise.all(
+    admins.map((admin) =>
+      notifyUser({
+        userId: admin.id,
+        type: 'SYSTEM',
+        title: 'NIC review required',
+        message: `${fullName} uploaded NIC documents and is waiting for identity verification.`,
+        link: '/admin/users',
+      })
+    )
+  )
+}
+
+function shouldNotifyNicReview(
+  previous: { nicFront: string | null; nicBack: string | null } | null,
+  next: { nicFront?: string | null; nicBack?: string | null },
+  isNicVerified: boolean
+): boolean {
+  if (isNicVerified) return false
+  const nowHasNic = hasNicDocuments(next)
+  const hadNic = previous ? hasNicDocuments(previous) : false
+  return nowHasNic && !hadNic
 }
 
 export async function GET(request: NextRequest) {
@@ -122,6 +154,10 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    if (shouldNotifyNicReview(null, validatedData, profile.user.isNicVerified)) {
+      await notifyAdminsNicReview(`${profile.firstName} ${profile.lastName}`)
+    }
+
     // Send welcome email if user has email
     if (profile.user.email) {
       const welcomeHtml = `
@@ -181,6 +217,11 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const validatedData = profileSchema.parse(body)
 
+    const existingProfile = await prisma.profile.findUnique({
+      where: { userId: user.userId },
+      select: { nicFront: true, nicBack: true },
+    })
+
     const profile = await prisma.profile.update({
       where: { userId: user.userId },
       data: toProfileData(validatedData),
@@ -196,6 +237,10 @@ export async function PUT(request: NextRequest) {
         },
       },
     })
+
+    if (shouldNotifyNicReview(existingProfile, validatedData, profile.user.isNicVerified)) {
+      await notifyAdminsNicReview(`${profile.firstName} ${profile.lastName}`)
+    }
 
     return NextResponse.json({
       message: 'Profile updated successfully',

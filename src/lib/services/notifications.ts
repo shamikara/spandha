@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getSiteUrl } from '@/lib/site'
 import { emailService, smsService } from '@/lib/services/notification'
 
 type NotificationType =
@@ -20,7 +21,7 @@ interface NotifyUserInput {
 }
 
 function appUrl() {
-  return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  return getSiteUrl()
 }
 
 function emailHtml(title: string, message: string, link?: string) {

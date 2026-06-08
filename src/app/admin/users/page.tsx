@@ -185,11 +185,20 @@ export default function AdminUsersPage() {
                       <div className="flex flex-col gap-2">
                         {user.isVerified ? (
                           <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md w-max border border-emerald-500/20">
-                            <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                            <ShieldCheck className="w-3.5 h-3.5" /> Login OK
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md w-max border border-amber-500/20">
-                            <ShieldAlert className="w-3.5 h-3.5" /> Unverified
+                            <ShieldAlert className="w-3.5 h-3.5" /> Login pending
+                          </span>
+                        )}
+                        {user.isNicVerified ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs text-sky-400 bg-sky-500/10 px-2 py-1 rounded-md w-max border border-sky-500/20">
+                            <ShieldCheck className="w-3.5 h-3.5" /> NIC verified
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-2 py-1 rounded-md w-max border border-white/10">
+                            <ShieldAlert className="w-3.5 h-3.5" /> NIC pending
                           </span>
                         )}
                         {user.isPremium && (
@@ -214,7 +223,7 @@ export default function AdminUsersPage() {
                           onClick={() => toggleStatus(user.id, 'isNicVerified', user.isNicVerified)}
                           className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5"
                         >
-                          {user.isNicVerified ? 'Revoke' : 'Verify'}
+                          {user.isNicVerified ? 'Revoke NIC' : 'Verify NIC'}
                         </button>
                         <button
                           onClick={() => toggleStatus(user.id, 'isPremium', !!user.isPremium)}
